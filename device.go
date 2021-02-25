@@ -21,10 +21,10 @@ func (c *Client) Device() *DeviceService {
 type devicesResponse struct {
 	StatusCode int                 `json:"statusCode"`
 	Message    string              `json:"message"`
-	Body       DevicesResponseBody `json:"body"`
+	Body       devicesResponseBody `json:"body"`
 }
 
-type DevicesResponseBody struct {
+type devicesResponseBody struct {
 	DeviceList         []Device         `json:"deviceList"`
 	InfraredRemoteList []InfraredDevice `json:"infraredRemoteList"`
 }
