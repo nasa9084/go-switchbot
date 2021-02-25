@@ -332,7 +332,7 @@ const (
 type ACFanSpeed int
 
 const (
-	ACAuto ACMode = iota + 1
+	ACAutoSpeed ACFanSpeed = iota + 1
 	ACLow
 	ACMedium
 	ACHigh
@@ -341,7 +341,7 @@ const (
 // ACSetAll returns a new command which set all state of air conditioner.
 func ACSetAll(temperature int, mode ACMode, fanSpeed ACFanSpeed, power PowerState) Command {
 	return deviceCommandRequest{
-		Comand:      "setAll",
+		Command:     "setAll",
 		Parameter:   fmt.Sprintf("%d,%d,%d,%s", temperature, mode, fanSpeed, power.ToLower()),
 		CommandType: "command",
 	}
