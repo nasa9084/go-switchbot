@@ -137,6 +137,7 @@ func (svc *DeviceService) Status(ctx context.Context, id string) (DeviceStatus, 
 	return response.Body, nil
 }
 
+// Command is an interface which represents Commands for devices to be used (*Client).Device().Command() method.
 type Command interface {
 	request() deviceCommandRequest
 }
@@ -186,6 +187,8 @@ func (svc *DeviceService) Command(ctx context.Context, id string, cmd Command) e
 
 type turnOnCommand struct{}
 
+// TurnOn returns a new Command which turns on Bot, Plug, Curtain, Humidifier, or so on.
+// For curtain devices, turn on is equivalent to set position to 0.
 func TurnOn() Command {
 	return &turnOnCommand{}
 }
@@ -200,6 +203,8 @@ func (*turnOnCommand) request() deviceCommandRequest {
 
 type turnOffCommand struct{}
 
+// TurnOff returns a nw Command which turns off Bot, plug, Curtain, Humidifier, or so on.
+// For curtain devices, turn off is equivalent to set position to 100.
 func TurnOff() Command {
 	return &turnOffCommand{}
 }
@@ -214,6 +219,7 @@ func (*turnOffCommand) request() deviceCommandRequest {
 
 type pressCommand struct{}
 
+// Press returns a new command which trigger Bot's press command.
 func Press() Command {
 	return &pressCommand{}
 }
@@ -232,6 +238,7 @@ type setPositionCommand struct {
 	position int
 }
 
+// SetPositionMode represents a mode for curtain devices' set position mode.
 type SetPositionMode int
 
 const (
@@ -240,7 +247,17 @@ const (
 	SilentMode
 )
 
+// SetPosition returns a new Command which sets curtain devices' position.
+// The third argument `position` can be take 0 - 100 value, 0 means opened
+// and 100 means closed. The position value will be treated as 0 if the given
+// value is less than 0, or treated as 100 if the given value is over 100.
 func SetPosition(index int, mode SetPositionMode, position int) Command {
+	if position < 0 {
+		position = 0
+	} else if 100 < position {
+		position = 100
+	}
+
 	return &setPositionCommand{
 		index:    index,
 		mode:     mode,
@@ -282,6 +299,9 @@ const (
 	HighMode HumidifierMode = 103
 )
 
+// SetMode sets a mode for Humidifier. mode can be take one of HumidifierMode
+// constants or 0 - 100 value. To use exact value 0 - 100, you need to pass like
+// HumidifierMode(38).
 func SetMode(mode HumidifierMode) Command {
 	return &setModeCommand{
 		mode: mode,
