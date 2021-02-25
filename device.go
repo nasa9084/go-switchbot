@@ -3,7 +3,9 @@ package switchbot
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
+	"strings"
 )
 
 type DeviceService struct {
@@ -111,6 +113,10 @@ const (
 	PowerOff PowerState = "OFF"
 )
 
+func (power PowerState) ToLower() string {
+	return strings.ToLower(string(power))
+}
+
 // Status get the status of a physical device that has been added to the current
 // user's account. Physical devices refer to the SwitchBot products.
 // The first given argument `id` is a device ID which can be retrieved by
@@ -185,15 +191,13 @@ func (svc *DeviceService) Command(ctx context.Context, id string, cmd Command) e
 	return nil
 }
 
-type turnOnCommand struct{}
+func (req deviceCommandRequest) request() deviceCommandRequest {
+	return req
+}
 
 // TurnOn returns a new Command which turns on Bot, Plug, Curtain, Humidifier, or so on.
 // For curtain devices, turn on is equivalent to set position to 0.
 func TurnOn() Command {
-	return &turnOnCommand{}
-}
-
-func (*turnOnCommand) request() deviceCommandRequest {
 	return deviceCommandRequest{
 		Command:     "turnOn",
 		Parameter:   "default",
@@ -201,15 +205,9 @@ func (*turnOnCommand) request() deviceCommandRequest {
 	}
 }
 
-type turnOffCommand struct{}
-
 // TurnOff returns a nw Command which turns off Bot, plug, Curtain, Humidifier, or so on.
 // For curtain devices, turn off is equivalent to set position to 100.
 func TurnOff() Command {
-	return &turnOffCommand{}
-}
-
-func (*turnOffCommand) request() deviceCommandRequest {
 	return deviceCommandRequest{
 		Command:     "turnOff",
 		Parameter:   "default",
@@ -221,10 +219,6 @@ type pressCommand struct{}
 
 // Press returns a new command which trigger Bot's press command.
 func Press() Command {
-	return &pressCommand{}
-}
-
-func (*pressCommand) request() deviceCommandRequest {
 	return deviceCommandRequest{
 		Command:     "press",
 		Parameter:   "default",
@@ -286,10 +280,6 @@ func (cmd *setPositionCommand) request() deviceCommandRequest {
 	}
 }
 
-type setModeCommand struct {
-	mode HumidifierMode
-}
-
 type HumidifierMode int
 
 const (
@@ -303,18 +293,12 @@ const (
 // constants or 0 - 100 value. To use exact value 0 - 100, you need to pass like
 // HumidifierMode(38).
 func SetMode(mode HumidifierMode) Command {
-	return &setModeCommand{
-		mode: mode,
-	}
-}
-
-func (cmd *setModeCommand) request() deviceCommandRequest {
 	var parameter string
 
-	if cmd.mode == AutoMode {
+	if mode == AutoMode {
 		parameter = "auto"
 	} else {
-		parameter = strconv.Itoa(int(cmd.mode))
+		parameter = strconv.Itoa(int(mode))
 	}
 
 	return deviceCommandRequest{
@@ -324,4 +308,41 @@ func (cmd *setModeCommand) request() deviceCommandRequest {
 	}
 }
 
-// TODO virtual infrared remote device command support
+// ButtonPush returns a command which triggers button push.
+func ButtonPush(name string) Command {
+	return deviceCommandRequest{
+		Command:     name,
+		Parameter:   "default",
+		CommandType: "customize",
+	}
+}
+
+// ACMode represents a mode for air conditioner.
+type ACMode int
+
+const (
+	ACAuto ACMode = iota + 1
+	ACCool
+	ACDry
+	ACFan
+	ACHeat
+)
+
+// ACFanSpeed represents a fan speed mode for air conditioner.
+type ACFanSpeed int
+
+const (
+	ACAuto ACMode = iota + 1
+	ACLow
+	ACMedium
+	ACHigh
+)
+
+// ACSetAll returns a new command which set all state of air conditioner.
+func ACSetAll(temperature int, mode ACMode, fanSpeed ACFanSpeed, power PowerState) Command {
+	return deviceCommandRequest{
+		Comand:      "setAll",
+		Parameter:   fmt.Sprintf("%d,%d,%d,%s", temperature, mode, fanSpeed, power.ToLower()),
+		CommandType: "command",
+	}
+}
