@@ -5,6 +5,9 @@ import (
 	"errors"
 )
 
+// SceneService handles API calls related to scenes.
+// The scene API is used to access the smart scenes created
+// by a user and to execute manual scenes.
 type SceneService struct {
 	c *Client
 }
@@ -13,6 +16,7 @@ func newSceneService(c *Client) *SceneService {
 	return &SceneService{c: c}
 }
 
+// Scene returns the Service Object for scene APIs.
 func (c *Client) Scene() *SceneService {
 	return c.sceneService
 }
@@ -23,6 +27,7 @@ type scenesResponse struct {
 	Body       []Scene `json:"body"`
 }
 
+// Scene represents a manual scene created by the current user.
 type Scene struct {
 	ID   string `json:"sceneId"`
 	Name string `json:"sceneName"`

@@ -67,6 +67,9 @@ const (
 	Others         VirtualDeviceType = "Others"
 )
 
+// New returns a new switchbot client associated with given openToken.
+// See https://github.com/OpenWonderLabs/SwitchBotAPI/blob/7a68353d84d07d439a11cb5503b634f24302f733/README.md#getting-started
+// for getting openToken for SwitchBot API.
 func New(openToken string, opts ...Option) *Client {
 	c := &Client{
 		httpClient: http.DefaultClient,
@@ -85,18 +88,21 @@ func New(openToken string, opts ...Option) *Client {
 	return c
 }
 
+// WithHTTPClient allows you to pass your http client for a SwitchBot API client.
 func WithHTTPClient(httpClient *http.Client) Option {
 	return func(c *Client) {
 		c.httpClient = httpClient
 	}
 }
 
+// WithEndpoint allows you to set an endpoint of SwitchBot API.
 func WithEndpoint(endpoint string) Option {
 	return func(c *Client) {
 		c.endpoint = endpoint
 	}
 }
 
+// httpResponse wraps a http.Response object to easily decode and close its response body.
 type httpResponse struct {
 	*http.Response
 }
@@ -129,6 +135,7 @@ func (c *Client) do(ctx context.Context, method, path string, body io.Reader) (*
 		return nil, err
 	}
 
+	// based on https://github.com/OpenWonderLabs/SwitchBotAPI/blob/7a68353d84d07d439a11cb5503b634f24302f733/README.md#standard-http-error-codes
 	switch resp.StatusCode {
 	case http.StatusBadRequest:
 		return nil, errors.New("client has issues an invalid request")

@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+// DeviceService handles API calls related to devices.
+// The devices API is used to access the properties and states of
+// SwitchBot devices and to send control commands to those devices.
 type DeviceService struct {
 	c *Client
 }
@@ -16,6 +19,7 @@ func newDeviceService(c *Client) *DeviceService {
 	return &DeviceService{c: c}
 }
 
+// Device returns the Service object for device APIs.
 func (c *Client) Device() *DeviceService {
 	return c.deviceService
 }
@@ -31,6 +35,7 @@ type devicesResponseBody struct {
 	InfraredRemoteList []InfraredDevice `json:"infraredRemoteList"`
 }
 
+// Device represents a physical SwitchBot device.
 type Device struct {
 	ID                   string             `json:"deviceId"`
 	Name                 string             `json:"deviceName"`
@@ -44,6 +49,7 @@ type Device struct {
 	OpenDirection        string             `json:"openDirection"`
 }
 
+// InfraredDevice represents a virtual infrared remote device.
 type InfraredDevice struct {
 	ID   string            `json:"deviceId"`
 	Name string            `json:"deviceName"`
