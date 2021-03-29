@@ -1,5 +1,6 @@
 go-switchbot
 ===
+[![Go Reference](https://pkg.go.dev/badge/github.com/nasa9084/go-switchbot.svg)](https://pkg.go.dev/github.com/nasa9084/go-switchbot)
 [![test](https://github.com/nasa9084/go-switchbot/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/nasa9084/go-switchbot/actions/workflows/test.yml)
 
 A [SwitchBot API](https://github.com/OpenWonderLabs/SwitchBotAPI) client for Golang
