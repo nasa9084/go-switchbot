@@ -352,3 +352,43 @@ func ACSetAll(temperature int, mode ACMode, fanSpeed ACFanSpeed, power PowerStat
 		CommandType: "command",
 	}
 }
+
+func FanSwing() Command {
+	return deviceCommandRequest{
+		Command:     "swing",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+func FanTimer() Command {
+	return deviceCommandRequest{
+		Command:     "timer",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+func FanLowSpeed() Command {
+	return deviceCommandRequest{
+		Command:     "lowSpeed",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+func FanMiddleSpeed() Command {
+	return deviceCommandRequest{
+		Command:     "middleSpeed",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+func FanHighSpeed() Command {
+	return deviceCommandRequest{
+		Command:     "highSpeed",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
