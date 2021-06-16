@@ -151,10 +151,10 @@ func (svc *DeviceService) Status(ctx context.Context, id string) (DeviceStatus, 
 
 // Command is an interface which represents Commands for devices to be used (*Client).Device().Command() method.
 type Command interface {
-	request() deviceCommandRequest
+	Request() DeviceCommandRequest
 }
 
-type deviceCommandRequest struct {
+type DeviceCommandRequest struct {
 	Command     string `json:"command"`
 	Parameter   string `json:"parameter,omitempty"`
 	CommandType string `json:"commandType,omitempty"`
@@ -168,7 +168,7 @@ type deviceCommandResponse struct {
 func (svc *DeviceService) Command(ctx context.Context, id string, cmd Command) error {
 	path := "/v1.0/devices/" + id + "/commands"
 
-	resp, err := svc.c.post(ctx, path, cmd.request())
+	resp, err := svc.c.post(ctx, path, cmd.Request())
 	if err != nil {
 		return nil
 	}
@@ -197,14 +197,14 @@ func (svc *DeviceService) Command(ctx context.Context, id string, cmd Command) e
 	return nil
 }
 
-func (req deviceCommandRequest) request() deviceCommandRequest {
+func (req DeviceCommandRequest) Request() DeviceCommandRequest {
 	return req
 }
 
 // TurnOn returns a new Command which turns on Bot, Plug, Curtain, Humidifier, or so on.
 // For curtain devices, turn on is equivalent to set position to 0.
 func TurnOn() Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "turnOn",
 		Parameter:   "default",
 		CommandType: "command",
@@ -214,7 +214,7 @@ func TurnOn() Command {
 // TurnOff returns a nw Command which turns off Bot, plug, Curtain, Humidifier, or so on.
 // For curtain devices, turn off is equivalent to set position to 100.
 func TurnOff() Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "turnOff",
 		Parameter:   "default",
 		CommandType: "command",
@@ -225,7 +225,7 @@ type pressCommand struct{}
 
 // Press returns a new command which trigger Bot's press command.
 func Press() Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "press",
 		Parameter:   "default",
 		CommandType: "command",
@@ -265,7 +265,7 @@ func SetPosition(index int, mode SetPositionMode, position int) Command {
 	}
 }
 
-func (cmd *setPositionCommand) request() deviceCommandRequest {
+func (cmd *setPositionCommand) Request() DeviceCommandRequest {
 	var parameter string
 
 	parameter += strconv.Itoa(cmd.index) + ","
@@ -279,7 +279,7 @@ func (cmd *setPositionCommand) request() deviceCommandRequest {
 	parameter += ","
 	parameter += strconv.Itoa(cmd.position)
 
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "setPosition",
 		Parameter:   parameter,
 		CommandType: "command",
@@ -307,7 +307,7 @@ func SetMode(mode HumidifierMode) Command {
 		parameter = strconv.Itoa(int(mode))
 	}
 
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "setMode",
 		Parameter:   parameter,
 		CommandType: "command",
@@ -316,7 +316,7 @@ func SetMode(mode HumidifierMode) Command {
 
 // ButtonPush returns a command which triggers button push.
 func ButtonPush(name string) Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     name,
 		Parameter:   "default",
 		CommandType: "customize",
@@ -346,7 +346,7 @@ const (
 
 // ACSetAll returns a new command which set all state of air conditioner.
 func ACSetAll(temperature int, mode ACMode, fanSpeed ACFanSpeed, power PowerState) Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "setAll",
 		Parameter:   fmt.Sprintf("%d,%d,%d,%s", temperature, mode, fanSpeed, power.ToLower()),
 		CommandType: "command",
@@ -354,7 +354,7 @@ func ACSetAll(temperature int, mode ACMode, fanSpeed ACFanSpeed, power PowerStat
 }
 
 func FanSwing() Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "swing",
 		Parameter:   "default",
 		CommandType: "command",
@@ -362,7 +362,7 @@ func FanSwing() Command {
 }
 
 func FanTimer() Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "timer",
 		Parameter:   "default",
 		CommandType: "command",
@@ -370,7 +370,7 @@ func FanTimer() Command {
 }
 
 func FanLowSpeed() Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "lowSpeed",
 		Parameter:   "default",
 		CommandType: "command",
@@ -378,7 +378,7 @@ func FanLowSpeed() Command {
 }
 
 func FanMiddleSpeed() Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "middleSpeed",
 		Parameter:   "default",
 		CommandType: "command",
@@ -386,7 +386,7 @@ func FanMiddleSpeed() Command {
 }
 
 func FanHighSpeed() Command {
-	return deviceCommandRequest{
+	return DeviceCommandRequest{
 		Command:     "highSpeed",
 		Parameter:   "default",
 		CommandType: "command",
