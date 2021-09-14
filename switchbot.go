@@ -46,6 +46,12 @@ const (
 	Humidifier PhysicalDeviceType = "Humidifier"
 	// SmartFan is SwitchBot Smart Fan Model No. W0601100
 	SmartFan PhysicalDeviceType = "Smart Fan"
+	// MotionSensor is SwitchBot Motion Sensor Model No. W1101500
+	MotionSensor PhysicalDeviceType = "Motion Sensor"
+	// ContactSensor is SwitchBot Contact Sensor Model No. W1201500
+	ContactSensor PhysicalDeviceType = "Contact Sensor"
+	// ColorBulb is SwitchBot Color Bulb Model No. W1401400
+	ColorBulb PhysicalDeviceType = "Color Bulb"
 )
 
 type VirtualDeviceType string

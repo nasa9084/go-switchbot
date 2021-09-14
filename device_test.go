@@ -2,6 +2,8 @@ package switchbot_test
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -236,6 +238,94 @@ func TestDeviceStatus(t *testing.T) {
 			return
 		}
 	})
+}
+
+func isSameStringErr(err1, err2 error) bool {
+	if err1 == nil && err2 == nil {
+		return true
+	}
+
+	if (err1 == nil && err2 != nil) || (err1 != nil && err2 == nil) {
+		return false
+	}
+
+	return err1.Error() == err2.Error()
+}
+
+func TestDeviceStatusBrightness(t *testing.T) {
+	type wants struct {
+		IntValue int
+		IntErr   error
+
+		AmbientValue switchbot.AmbientBrightness
+		AmbientErr   error
+	}
+	tests := []struct {
+		label string
+		body  string
+		want  wants
+	}{
+		{
+			label: "color bulb",
+			body:  `{ "deviceType": "Color Bulb", "brightness": 100 }`,
+			want: wants{
+				IntValue:   100,
+				AmbientErr: errors.New("ambient brightness value is only available for motion sensor, contact sensor devices"),
+			},
+		},
+		{
+			label: "motion sensor",
+			body:  `{ "deviceType": "Motion Sensor", "brightness": "bright" }`,
+			want: wants{
+				IntValue: -1,
+				IntErr:   errors.New("integer brightness value is only available for color bulb devices"),
+
+				AmbientValue: switchbot.AmbientBrightnessBright,
+			},
+		},
+		{
+			label: "contact sensor",
+			body:  `{ "devcieType": "Contact Sensor", "brightness": "dim" }`,
+			want: wants{
+				IntValue: -1,
+				IntErr:   errors.New("integer brightness value is only available for color bulb devices"),
+
+				AmbientValue: switchbot.AmbientBrightnessDim,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			srv := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(http.StatusOK)
+					w.Write([]byte(fmt.Sprintf(`{
+    "statusCode": 100,
+    "body": %s,
+    "message": "success"
+}`, tt.body)))
+				}),
+			)
+			defer srv.Close()
+
+			c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+			got, err := c.Device().Status(context.Background(), "E2F6032048AB")
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if gotint, err := got.Brightness.Int(); gotint != tt.want.IntValue || !isSameStringErr(err, tt.want.IntErr) {
+				t.Errorf("unexpected result for int brightness\n  int value: %d != %d\n  error: %v != %v", gotint, tt.want.IntValue, err, tt.want.IntErr)
+				return
+			}
+
+			if gotAmbient, err := got.Brightness.AmbientBrightness(); gotAmbient != tt.want.AmbientValue || !isSameStringErr(err, tt.want.AmbientErr) {
+				t.Errorf("unexpected result for ambient brightness\n  ambient brightness value: %s != %s\n  error: %v != %v", gotAmbient, tt.want.AmbientValue, err, tt.want.AmbientErr)
+				return
+			}
+		})
+	}
 }
 
 func testDeviceCommand(t *testing.T, wantPath string, wantBody string) http.Handler {

@@ -2,6 +2,7 @@ package switchbot
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -110,6 +111,12 @@ type DeviceStatus struct {
 	IsShaking              bool               `json:"shaking"`
 	ShakeCenter            int                `json:"shakeCenter"`
 	ShakeRange             int                `json:"shakeRange"`
+	MoveDetected           bool               `json:"moveDetected"`
+	Brightness             BrightnessState    `json:"brightness"`
+	OpenState              OpenState          `json:"openState"`
+	Color                  string             `json:"color"`
+	ColorTemperature       int                `json:"colorTemperature"`
+	LackWater              bool               `json:"lackWater"`
 }
 
 type PowerState string
@@ -122,6 +129,62 @@ const (
 func (power PowerState) ToLower() string {
 	return strings.ToLower(string(power))
 }
+
+type OpenState string
+
+const (
+	ContactOpen            OpenState = "open"
+	ContactClose           OpenState = "close"
+	ContactTimeoutNotClose OpenState = "timeOutNotClose"
+)
+
+type BrightnessState struct {
+	intBrightness     int
+	ambientBrightness AmbientBrightness
+}
+
+func (brightness *BrightnessState) UnmarshalJSON(b []byte) error {
+	brightness.intBrightness = -1 // set invalid value first
+
+	var iv int
+	if err := json.Unmarshal(b, &iv); err != nil {
+		var sv string
+		if err := json.Unmarshal(b, &sv); err != nil {
+			return fmt.Errorf("cannot unmarshal to both of int and string: %w", err)
+		}
+
+		brightness.ambientBrightness = AmbientBrightness(sv)
+
+		return nil
+	}
+
+	brightness.intBrightness = iv
+
+	return nil
+}
+
+func (brightness BrightnessState) Int() (int, error) {
+	if brightness.intBrightness < 0 {
+		return -1, errors.New("integer brightness value is only available for color bulb devices")
+	}
+
+	return brightness.intBrightness, nil
+}
+
+func (brightness BrightnessState) AmbientBrightness() (AmbientBrightness, error) {
+	if brightness.ambientBrightness != "" {
+		return brightness.ambientBrightness, nil
+	}
+
+	return "", errors.New("ambient brightness value is only available for motion sensor, contact sensor devices")
+}
+
+type AmbientBrightness string
+
+const (
+	AmbientBrightnessBright AmbientBrightness = "bright"
+	AmbientBrightnessDim    AmbientBrightness = "dim"
+)
 
 // Status get the status of a physical device that has been added to the current
 // user's account. Physical devices refer to the SwitchBot products.
