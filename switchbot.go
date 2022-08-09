@@ -52,6 +52,8 @@ const (
 	ContactSensor PhysicalDeviceType = "Contact Sensor"
 	// ColorBulb is SwitchBot Color Bulb Model No. W1401400
 	ColorBulb PhysicalDeviceType = "Color Bulb"
+	// MeterPlusJP is SwitchBot Thermometer and Hygrometer Plus (JP) Model No. W2201500 / (US) Model No. W2301500
+	MeterPlus PhysicalDeviceType = "MeterPlus"
 )
 
 type VirtualDeviceType string
