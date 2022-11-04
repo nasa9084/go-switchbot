@@ -242,7 +242,7 @@ func (svc *DeviceService) Command(ctx context.Context, id string, cmd Command) e
 
 	resp, err := svc.c.post(ctx, path, cmd.Request())
 	if err != nil {
-		return nil
+		return err
 	}
 	defer resp.Close()
 
