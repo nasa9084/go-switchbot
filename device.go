@@ -117,6 +117,15 @@ type DeviceStatus struct {
 	Color                  string             `json:"color"`
 	ColorTemperature       int                `json:"colorTemperature"`
 	LackWater              bool               `json:"lackWater"`
+	Voltage                int                `json:"voltage"`
+	Weight                 int                `json:"weight"`
+	ElectricityOfDay       int                `json:"electricityOfDay"`
+	ElectricCurrent        int                `json:"electricCurrent"`
+	LockState              string             `json:"lockState"`
+	DoorState              string             `json:"doorState"`
+	WorkingStatus          string             `json:"workingStatus"`
+	OnlineStatus           string             `json:"onlineStatus"`
+	Battery                int                `json:"battery"`
 }
 
 type PowerState string
@@ -373,6 +382,103 @@ func SetMode(mode HumidifierMode) Command {
 	return DeviceCommandRequest{
 		Command:     "setMode",
 		Parameter:   parameter,
+		CommandType: "command",
+	}
+}
+
+type SmartFanMode int
+
+const (
+	StandardFanMode SmartFanMode = 1
+	NaturalFanMode  SmartFanMode = 2
+)
+
+// SetAllStatus returns a commend which sets all status for smart fan.
+func SetAllStatus(power PowerState, fanMode SmartFanMode, fanSpeed, shakeRange int) Command {
+	return DeviceCommandRequest{
+		Command:     "setAllStatus",
+		Parameter:   fmt.Sprintf("%s,%d,%d,%d", power.ToLower(), fanMode, fanSpeed, shakeRange),
+		CommandType: "command",
+	}
+}
+
+// Toggle returns a command which toggle state of color bulb, strip light or plug mini.
+func Toggle() Command {
+	return DeviceCommandRequest{
+		Command:     "toggle",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+// SetBrightness returns a command which set brightness of color bulb or strip light.
+func SetBrightness(brightness int) Command {
+	return DeviceCommandRequest{
+		Command:     "setBrightness",
+		Parameter:   strconv.Itoa(brightness),
+		CommandType: "command",
+	}
+}
+
+// SetColor returns a command which set RGB color value of color bulb or strip light.
+func SetColor(r, g, b int) Command {
+	return DeviceCommandRequest{
+		Command:     "setColor",
+		Parameter:   fmt.Sprintf("%d:%d:%d", r, g, b),
+		CommandType: "command",
+	}
+}
+
+// SetColorTemperature returns a command which set color temperature of color bulb.
+func SetColorTemperature(temperature int) Command {
+	return DeviceCommandRequest{
+		Command:     "setColorTemperature",
+		Parameter:   strconv.Itoa(temperature),
+		CommandType: "command",
+	}
+}
+
+// Start returns a command which starts vacuuming.
+func Start() Command {
+	return DeviceCommandRequest{
+		Command:     "start",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+// Stop returns a command which stops vacuuming.
+func Stop() Command {
+	return DeviceCommandRequest{
+		Command:     "stop",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+// Dock returns a command which returns robot vacuum cleaner to charging dock.
+func Dock() Command {
+	return DeviceCommandRequest{
+		Command:     "dock",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+type VacuumPowerLevel int
+
+const (
+	QuietVacuumPowerLevel    VacuumPowerLevel = 0
+	StandardVacuumPowerLevel VacuumPowerLevel = 1
+	StrongVacuumPowerLevel   VacuumPowerLevel = 2
+	MaxVacuumPowerLevel      VacuumPowerLevel = 3
+)
+
+// PowLevel returns a command which sets suction power level of robot vacuum cleaner.
+func PowLevel(level VacuumPowerLevel) Command {
+	return DeviceCommandRequest{
+		Command:     "PowLevel",
+		Parameter:   strconv.Itoa(int(level)),
 		CommandType: "command",
 	}
 }

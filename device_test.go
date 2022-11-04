@@ -370,4 +370,52 @@ func TestDeviceCommand(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+
+	t.Run("set the color value of a Color Bulb Request", func(t *testing.T) {
+		srv := httptest.NewServer(testDeviceCommand(
+			t,
+			"/v1.0/devices/84F70353A411/commands",
+			`{"command":"setColor","parameter":"122:80:20","commandType":"command"}
+`,
+		))
+		defer srv.Close()
+
+		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+
+		if err := c.Device().Command(context.Background(), "84F70353A411", switchbot.SetColor(122, 80, 20)); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("set an air conditioner", func(t *testing.T) {
+		srv := httptest.NewServer(testDeviceCommand(
+			t,
+			"/v1.0/devices/02-202007201626-70/commands",
+			`{"command":"setAll","parameter":"26,1,3,on","commandType":"command"}
+`,
+		))
+		defer srv.Close()
+
+		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+
+		if err := c.Device().Command(context.Background(), "02-202007201626-70", switchbot.ACSetAll(26, switchbot.ACAuto, switchbot.ACMedium, switchbot.PowerOn)); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("set trigger a customized button", func(t *testing.T) {
+		srv := httptest.NewServer(testDeviceCommand(
+			t,
+			"/v1.0/devices/02-202007201626-10/commands",
+			`{"command":"ボタン","parameter":"default","commandType":"customize"}
+`,
+		))
+		defer srv.Close()
+
+		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+
+		if err := c.Device().Command(context.Background(), "02-202007201626-10", switchbot.ButtonPush("ボタン")); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
