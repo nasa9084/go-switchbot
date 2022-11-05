@@ -19,8 +19,9 @@ type Client struct {
 	openToken string
 	endpoint  string
 
-	deviceService *DeviceService
-	sceneService  *SceneService
+	deviceService  *DeviceService
+	sceneService   *SceneService
+	webhookService *WebhookService
 }
 
 type Option func(*Client)
@@ -104,6 +105,7 @@ func New(openToken string, opts ...Option) *Client {
 
 	c.deviceService = newDeviceService(c)
 	c.sceneService = newSceneService(c)
+	c.webhookService = newWebhookService(c)
 
 	for _, opt := range opts {
 		opt(c)
@@ -194,4 +196,14 @@ func (c *Client) post(ctx context.Context, path string, body interface{}) (*http
 	}
 
 	return c.do(ctx, http.MethodPost, path, &buf)
+}
+
+func (c *Client) del(ctx context.Context, path string, body interface{}) (*httpResponse, error) {
+	var buf bytes.Buffer
+
+	if err := json.NewEncoder(&buf).Encode(body); err != nil {
+		return nil, err
+	}
+
+	return c.do(ctx, http.MethodDelete, path, &buf)
 }
