@@ -21,21 +21,19 @@ func TestWebhookSetup(t *testing.T) {
 				t.Fatalf("POST method is expected but %s", r.Method)
 			}
 
-			var body map[string]string
-			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			var got map[string]string
+			if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
 				t.Fatal(err)
 			}
 
-			if body["action"] != "setupWebhook" {
-				t.Fatalf(".action must be setupWebhook but %s", body["action"])
+			want := map[string]string{
+				"action":     "setupWebhook",
+				"url":        "url1",
+				"deviceList": "ALL",
 			}
 
-			if body["url"] != "url1" {
-				t.Fatalf(".url must be url1 but %s", body["url"])
-			}
-
-			if body["deviceList"] != "ALL" {
-				t.Fatalf(".deviceList must be ALL but %s", body["deviceList"])
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Fatalf("event mismatch (-want +got):\n%s", diff)
 			}
 		}),
 	)
@@ -58,13 +56,18 @@ func TestWebhookQuery(t *testing.T) {
 					t.Fatalf("POST method is expected but %s", r.Method)
 				}
 
-				var body map[string]string
-				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				var got map[string]string
+				if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
 					t.Fatal(err)
 				}
 
-				if body["action"] != "queryUrl" {
-					t.Fatalf(".action must be queryUrl but %s", body["action"])
+				want := map[string]string{
+					"action": "queryUrl",
+					"urls":   "",
+				}
+
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Fatalf("event mismatch (-want +got):\n%s", diff)
 				}
 			}),
 		)
@@ -86,17 +89,18 @@ func TestWebhookQuery(t *testing.T) {
 					t.Fatalf("POST method is expected but %s", r.Method)
 				}
 
-				var body map[string]interface{}
-				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				var got map[string]interface{}
+				if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
 					t.Fatal(err)
 				}
 
-				if action, ok := body["action"].(string); !ok || action != "queryDetails" {
-					t.Fatalf(".action must be queryDetails but %v", body["action"])
+				want := map[string]interface{}{
+					"action": "queryDetails",
+					"urls":   []interface{}{"url1"},
 				}
 
-				if urls, ok := body["urls"].([]interface{}); !ok || !cmp.Equal(urls, []interface{}{"url1"}) {
-					t.Fatalf(".urls must be [url1] but %v", body["urls"])
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Fatalf("event mismatch (-want +got):\n%s", diff)
 				}
 			}),
 		)
@@ -119,25 +123,21 @@ func TestWebhookUpdate(t *testing.T) {
 				t.Fatalf("POST method is expected but %s", r.Method)
 			}
 
-			var body map[string]interface{}
-			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			var got map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
 				t.Fatal(err)
 			}
 
-			if body["action"] != "updateWebhook" {
-				t.Fatalf(".action must be updateWebhook but %s", body["action"])
+			want := map[string]interface{}{
+				"action": "updateWebhook",
+				"config": map[string]interface{}{
+					"url":    "url1",
+					"enable": true,
+				},
 			}
 
-			if config, ok := body["config"].(map[string]interface{}); ok {
-				if url, ok := config["url"].(string); !ok || url != "url1" {
-					t.Fatalf(".config.url must be url1 but %v", config["url"])
-				}
-
-				if enable, ok := config["enable"].(bool); !ok || enable != true {
-					t.Fatalf(".config.enable must be true but %v", config["enable"])
-				}
-			} else {
-				t.Fatalf(`.config must be map[enable:true url:url1] but %+v`, body["config"])
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Fatalf("event mismatch (-want +got):\n%s", diff)
 			}
 		}),
 	)
@@ -159,17 +159,18 @@ func TestWebhookDelete(t *testing.T) {
 				t.Fatalf("DELETE method is expected but %s", r.Method)
 			}
 
-			var body map[string]string
-			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			var got map[string]string
+			if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
 				t.Fatal(err)
 			}
 
-			if body["action"] != "deleteWebhook" {
-				t.Fatalf(".action must be updateWebhook but %s", body["action"])
+			want := map[string]string{
+				"action": "deleteWebhook",
+				"url":    "url1",
 			}
 
-			if body["url"] != "url1" {
-				t.Fatalf(".url must be url1 but %s", body["url"])
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Fatalf("event mismatch (-want +got):\n%s", diff)
 			}
 		}),
 	)
