@@ -3,7 +3,7 @@ go-switchbot
 [![Go Reference](https://pkg.go.dev/badge/github.com/nasa9084/go-switchbot.svg)](https://pkg.go.dev/github.com/nasa9084/go-switchbot)
 [![test](https://github.com/nasa9084/go-switchbot/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/nasa9084/go-switchbot/actions/workflows/test.yml)
 
-A [SwitchBot API v1.0](https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/README-v1.0.md) client for Golang
+A [SwitchBot API](https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/README.md) client for Golang
 
 ## SYNOPSIS
 
@@ -22,7 +22,7 @@ for _, d := range pdev {
 
 ## Get Open Token
 
-To use [SwitchBot API](https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/README-v1.0.md), you need to get Open Token for auth. [Follow steps](https://github.com/OpenWonderLabs/SwitchBotAPI/blob/e236be6a613c1d2a9c18965fd502a951608a8765/README-v1.0.md#getting-started) below:
+To use [SwitchBot API](https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/README.md), you need to get Open Token for auth. [Follow steps](https://github.com/OpenWonderLabs/SwitchBotAPI/blob/e236be6a613c1d2a9c18965fd502a951608a8765/README.md#getting-started) below:
 
 > 1. Download the SwitchBot app on App Store or Google Play Store
 > 2. Register a SwitchBot account and log in into your account
