@@ -8,9 +8,12 @@ A [SwitchBot API](https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/READM
 ## SYNOPSIS
 
 ``` go
-const openToken = "blahblahblah"
+const (
+	openToken = "blahblahblah"
+	secretKey = "blahblahblah"
+)
 
-c := switchbot.New(openToken)
+c := switchbot.New(openToken, secretKey)
 
 // get physical devices and show
 pdev, _, _ := c.Device().List(context.Background())
