@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nasa9084/go-switchbot"
 )
 
@@ -45,17 +45,13 @@ func TestScenes(t *testing.T) {
 	)
 	defer srv.Close()
 
-	c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+	c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
-	scenes, err := c.Scene().List(context.Background())
+	got, err := c.Scene().List(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(scenes) != 5 {
-		t.Errorf("the number of scenes is expected to 5, but %d", len(scenes))
-		return
-	}
 	want := []switchbot.Scene{
 		{
 			ID:   "T02-20200804130110",
@@ -79,18 +75,8 @@ func TestScenes(t *testing.T) {
 		},
 	}
 
-	for i, got := range scenes {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			if got.ID != want[i].ID {
-				t.Errorf("scene ID is not match: %s != %s", got.ID, want[i].ID)
-				return
-			}
-
-			if got.Name != want[i].Name {
-				t.Errorf("scene name is not match: %s != %s", got.Name, want[i].Name)
-				return
-			}
-		})
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Fatalf("status mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -103,7 +89,7 @@ func TestSceneExecute(t *testing.T) {
 				return
 			}
 
-			if want := "/v1.0/scenes/T02-202009221414-48924101/execute"; r.URL.Path != want {
+			if want := "/v1.1/scenes/T02-202009221414-48924101/execute"; r.URL.Path != want {
 				t.Fatalf("unexpected request path: %s", r.URL.Path)
 				return
 			}
@@ -118,7 +104,7 @@ func TestSceneExecute(t *testing.T) {
 	)
 	defer srv.Close()
 
-	c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+	c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 	if err := c.Scene().Execute(context.Background(), "T02-202009221414-48924101"); err != nil {
 		t.Fatal(err)
 	}

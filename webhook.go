@@ -25,7 +25,7 @@ func (c *Client) Webhook() *WebhookService {
 type webhookSetupRequest struct {
 	Action     string `json:"action"`
 	URL        string `json:"url,omitempty"`
-	DeviceList string `json:"deviceList,omitempty"`
+	DeviceList string `json:"deviceList,omitempty"` // currently only ALL is supported
 }
 
 type webhookSetupResponse struct {
@@ -34,8 +34,10 @@ type webhookSetupResponse struct {
 	Message    string      `json:"message"`
 }
 
+// Setup configures the url that all the webhook events will be sent to.
+// Currently the deviceList is only supporting "ALL".
 func (svc *WebhookService) Setup(ctx context.Context, url, deviceList string) error {
-	const path = "/v1.0/webhook/setupWebhook"
+	const path = "/v1.1/webhook/setupWebhook"
 
 	if deviceList != "ALL" {
 		return errors.New(`deviceList value is only supporting "ALL" for now`)
@@ -71,8 +73,10 @@ const (
 type webhookQueryResponse struct {
 }
 
+// Query retrieves the current configuration info of the webhook.
+// The second argument `url` is required for QueryDetails action type.
 func (svc *WebhookService) Query(ctx context.Context, action WebhookQueryActionType, url string) error {
-	const path = "/v1.0/webhook/queryWebhook"
+	const path = "/v1.1/webhook/queryWebhook"
 
 	req := webhookQueryRequest{
 		Action: action,
@@ -106,8 +110,9 @@ type webhookConfig struct {
 	Enable bool   `json:"enable"`
 }
 
+// Update do update the configuration of the webhook.
 func (svc *WebhookService) Update(ctx context.Context, url string, enable bool) error {
-	const path = "/v1.0/webhook/queryWebhook"
+	const path = "/v1.1/webhook/queryWebhook"
 
 	req := webhookUpdateRequest{
 		Action: "updateWebhook",
@@ -131,8 +136,9 @@ type webhookDeleteRequest struct {
 	URL    string `json:"url"`
 }
 
+// Delete do delete the configuration of the webhook.
 func (svc *WebhookService) Delete(ctx context.Context, url string) error {
-	const path = "/v1.0/webhook/deleteWebhook"
+	const path = "/v1.1/webhook/deleteWebhook"
 
 	req := webhookDeleteRequest{
 		Action: "deleteWebhook",
@@ -198,7 +204,7 @@ type ContactSensorEventContext struct {
 	// when the enter or exit mode gets triggered, "IN_DOOR" or "OUT_DOOR" is returned
 	DoorMode string `json:"doorMode"`
 	// the level of brightness, can be "bright" or "dim"
-	Brightness string `json:"brightness"`
+	Brightness AmbientBrightness `json:"brightness"`
 	// the state of the contact sensor, can be "open" or "close" or "timeOutNotClose"
 	OpenState string `json:"openState"`
 }
@@ -294,7 +300,7 @@ type ColorBulbEventContext struct {
 	TimeOfSample int64  `json:"timeOfSample"`
 
 	// the current power state of the device, "ON" or "OFF"
-	PowerState string `json:"powerState"`
+	PowerState PowerState `json:"powerState"`
 	// the brightness value, range from 1 to 100
 	Brightness int `json:"brightness"`
 	// the color value, in the format of RGB value, "255:255:255"
@@ -315,7 +321,7 @@ type StripLightEventContext struct {
 	TimeOfSample int64  `json:"timeOfSample"`
 
 	// the current power state of the device, "ON" or "OFF"
-	PowerState string `json:"powerState"`
+	PowerState PowerState `json:"powerState"`
 	// the brightness value, range from 1 to 100
 	Brightness int `json:"brightness"`
 	// the color value, in the format of RGB value, "255:255:255"
@@ -334,7 +340,7 @@ type PlugMiniJPEventContext struct {
 	TimeOfSample int64  `json:"timeOfSample"`
 
 	// the current power state of the device, "ON" or "OFF"
-	PowerState string `json:"powerState"`
+	PowerState PowerState `json:"powerState"`
 }
 
 type PlugMiniUSEvent struct {
@@ -349,7 +355,66 @@ type PlugMiniUSEventContext struct {
 	TimeOfSample int64  `json:"timeOfSample"`
 
 	// the current power state of the device, "ON" or "OFF"
-	PowerState string `json:"powerState"`
+	PowerState PowerState `json:"powerState"`
+}
+
+type SweeperEvent struct {
+	EventType    string              `json:"eventType"`
+	EventVersion string              `json:"eventVersion"`
+	Context      SweeperEventContext `json:"context"`
+}
+
+type SweeperEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// the working status of the device, "StandBy", "Clearing",
+	// "Paused", "GotoChargeBase", "Charging", "ChargeDone",
+	// "Dormant", "InTrouble", "InRemoteControl", or "InDustCollecting"
+	WorkingStatus CleanerWorkingStatus `json:"workingStatus"`
+	// the connection status of the device, "online" or "offline"
+	OnlineStatus CleanerOnlineStatus `json:"onlineStatus"`
+	// the battery level.
+	Battery int `json:"battery"`
+}
+
+type CeilingEvent struct {
+	EventType    string              `json:"eventType"`
+	EventVersion string              `json:"eventVersion"`
+	Context      CeilingEventContext `json:"context"`
+}
+
+type CeilingEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// ON/OFF state
+	PowerState PowerState `json:"powerState"`
+	// the brightness value, range from 1 to 100
+	Brightness int `json:"brightness"`
+	// the color temperature value, range from 2700 to 6500
+	ColorTemperature int `json:"colorTemperature"`
+}
+
+type KeypadEvent struct {
+	EventType    string             `json:"eventType"`
+	EventVersion string             `json:"eventVersion"`
+	Context      KeypadEventContext `json:"context"`
+}
+
+type KeypadEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// the name fo the command being sent
+	EventName string `json:"eventName"`
+	// the command ID
+	CommandID string `json:"commandId"`
+	// the result of the command, success, failed, or timeout
+	Result string `json:"result"`
 }
 
 func ParseWebhookRequest(r *http.Request) (interface{}, error) {
@@ -432,6 +497,27 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoMeterPlus":
 		// Meter Plus
 		var event MeterPlusEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoSweeper", "WoSweeperPlus":
+		// Cleaner
+		var event SweeperEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoCeiling", "WoCeilingPro":
+		// Ceiling lights
+		var event CeilingEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoKeypad", "WoKeypadTouch":
+		// keypad
+		var event KeypadEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}

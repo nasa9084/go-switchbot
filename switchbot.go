@@ -3,12 +3,20 @@ package switchbot
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 const DefaultEndpoint = "https://api.switch-bot.com"
@@ -17,6 +25,7 @@ type Client struct {
 	httpClient *http.Client
 
 	openToken string
+	secretKey string
 	endpoint  string
 
 	deviceService  *DeviceService
@@ -71,6 +80,20 @@ const (
 	ColorBulb PhysicalDeviceType = "Color Bulb"
 	// MeterPlusJP is SwitchBot Thermometer and Hygrometer Plus (JP) Model No. W2201500 / (US) Model No. W2301500
 	MeterPlus PhysicalDeviceType = "MeterPlus"
+	// KeyPad is SwitchBot Lock Model No. W2500010
+	KeyPad PhysicalDeviceType = "KeyPad"
+	// KeyPadTouch is SwitchBot Lock Model No. W2500020
+	KeyPadTouch PhysicalDeviceType = "KeyPad Touch"
+	// CeilingLight is SwitchBot Ceiling Light Model No. W2612230 and W2612240.
+	CeilingLight PhysicalDeviceType = "Ceiling Light"
+	// CeilingLightPro is SwitchBot Ceiling Light Pro Model No. W2612210 and W2612220.
+	CeilingLightPro PhysicalDeviceType = "Ceiling Light Pro"
+	// IndoorCam is SwitchBot Indoor Cam Model No. W1301200
+	IndoorCam PhysicalDeviceType = "Indoor Cam"
+	// PanTiltCam is SwitchBot Pan/Tilt Cam Model No. W1801200
+	PanTiltCam PhysicalDeviceType = "Pan/Tilt Cam"
+	//PanTiltCam2K is SwitchBot Pan/Tilt Cam 2K Model No. W3101100
+	PanTiltCam2K PhysicalDeviceType = "Pan/Tilt Cam 2K"
 )
 
 type VirtualDeviceType string
@@ -95,11 +118,12 @@ const (
 // New returns a new switchbot client associated with given openToken.
 // See https://github.com/OpenWonderLabs/SwitchBotAPI/blob/7a68353d84d07d439a11cb5503b634f24302f733/README.md#getting-started
 // for getting openToken for SwitchBot API.
-func New(openToken string, opts ...Option) *Client {
+func New(openToken, secretKey string, opts ...Option) *Client {
 	c := &Client{
 		httpClient: http.DefaultClient,
 
 		openToken: openToken,
+		secretKey: secretKey,
 		endpoint:  DefaultEndpoint,
 	}
 
@@ -147,6 +171,10 @@ func (resp *httpResponse) Close() {
 }
 
 func (c *Client) do(ctx context.Context, method, path string, body io.Reader) (*httpResponse, error) {
+	nonce := uuid.New().String()
+	t := strconv.FormatInt(time.Now().UnixMilli(), 10)
+	sign := hmacSHA256String(c.openToken+t+nonce, c.secretKey)
+
 	req, err := http.NewRequestWithContext(ctx, method, c.endpoint+path, body)
 
 	if err != nil {
@@ -154,6 +182,9 @@ func (c *Client) do(ctx context.Context, method, path string, body io.Reader) (*
 	}
 
 	req.Header.Add("Authorization", c.openToken)
+	req.Header.Add("sign", sign)
+	req.Header.Add("nonce", nonce)
+	req.Header.Add("t", t)
 	req.Header.Add("Content-Type", "application/json; charset=utf8")
 
 	resp, err := c.httpClient.Do(req)
@@ -206,4 +237,10 @@ func (c *Client) del(ctx context.Context, path string, body interface{}) (*httpR
 	}
 
 	return c.do(ctx, http.MethodDelete, path, &buf)
+}
+
+func hmacSHA256String(message, key string) string {
+	signer := hmac.New(sha256.New, []byte(key))
+	signer.Write([]byte(message))
+	return strings.ToUpper(base64.StdEncoding.EncodeToString(signer.Sum(nil)))
 }

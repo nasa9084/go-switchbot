@@ -36,7 +36,7 @@ type Scene struct {
 // List get a list of manual scenes created by the current user.
 // The first returned value is a list of scenes.
 func (svc *SceneService) List(ctx context.Context) ([]Scene, error) {
-	const path = "/v1.0/scenes"
+	const path = "/v1.1/scenes"
 
 	resp, err := svc.c.get(ctx, path)
 	if err != nil {
@@ -57,15 +57,16 @@ func (svc *SceneService) List(ctx context.Context) ([]Scene, error) {
 }
 
 type sceneExecuteResponse struct {
-	StatusCode int    `json:"statusCode"`
-	Message    string `json:"message"`
+	StatusCode int         `json:"statusCode"`
+	Message    string      `json:"message"`
+	Body       interface{} `json:"body"`
 }
 
 // Execute sends a request to execute a manual scene.
 // The first given argument `id` is a scene ID which you want to execute, which can
 // be retrieved by (*Client).Scene().List() function.
 func (svc *SceneService) Execute(ctx context.Context, id string) error {
-	path := "/v1.0/scenes/" + id + "/execute"
+	path := "/v1.1/scenes/" + id + "/execute"
 
 	resp, err := svc.c.post(ctx, path, nil)
 	if err != nil {

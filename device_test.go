@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nasa9084/go-switchbot"
 )
 
@@ -44,7 +46,7 @@ func TestDevices(t *testing.T) {
 	)
 	defer srv.Close()
 
-	c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+	c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 	devices, infrared, err := c.Device().List(context.Background())
 	if err != nil {
 		t.Fatal(err)
@@ -58,29 +60,16 @@ func TestDevices(t *testing.T) {
 
 		got := devices[0]
 
-		if want := "500291B269BE"; got.ID != want {
-			t.Errorf("device ID is not match: %s != %s", got.ID, want)
-			return
+		want := switchbot.Device{
+			ID:                   "500291B269BE",
+			Name:                 "Living Room Humidifier",
+			Type:                 switchbot.Humidifier,
+			IsEnableCloudService: true,
+			Hub:                  "000000000000",
 		}
 
-		if want := "Living Room Humidifier"; got.Name != want {
-			t.Errorf("device name is not match: %s != %s", got.Name, want)
-			return
-		}
-
-		if want := switchbot.Humidifier; got.Type != want {
-			t.Errorf("device type is not match: %s != %s", got.Type, want)
-			return
-		}
-
-		if !got.IsEnableCloudService {
-			t.Errorf("device.enableCloudService should be true but false")
-			return
-		}
-
-		if want := "000000000000"; got.Hub != want {
-			t.Errorf("device's parent hub id is not match: %s != %s", got.Hub, want)
-			return
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Fatalf("device mismatch (-want +got):\n%s", diff)
 		}
 	})
 
@@ -92,24 +81,15 @@ func TestDevices(t *testing.T) {
 
 		got := infrared[0]
 
-		if want := "02-202008110034-13"; got.ID != want {
-			t.Errorf("infrared device ID is not match: %s != %s", got.ID, want)
-			return
+		want := switchbot.InfraredDevice{
+			ID:   "02-202008110034-13",
+			Name: "Living Room TV",
+			Type: switchbot.TV,
+			Hub:  "FA7310762361",
 		}
 
-		if want := "Living Room TV"; got.Name != want {
-			t.Errorf("infrared device name is not match: %s != %s", got.Name, want)
-			return
-		}
-
-		if want := switchbot.TV; got.Type != want {
-			t.Errorf("infrared device type is not match: %s != %s", got.Type, want)
-			return
-		}
-
-		if want := "FA7310762361"; got.Hub != want {
-			t.Errorf("infrared device's parent hub id is not match: %s != %s", got.Hub, want)
-			return
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Fatalf("infrared device mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
@@ -119,7 +99,7 @@ func TestDeviceStatus(t *testing.T) {
 	t.Run("meter", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path != "/v1.0/devices/C271111EC0AB/status" {
+				if r.URL.Path != "/v1.1/devices/C271111EC0AB/status" {
 					t.Fatalf("unexpected request path: %s", r.URL.Path)
 				}
 
@@ -139,35 +119,22 @@ func TestDeviceStatus(t *testing.T) {
 		)
 		defer srv.Close()
 
-		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 		got, err := c.Device().Status(context.Background(), "C271111EC0AB")
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if want := "C271111EC0AB"; got.ID != want {
-			t.Errorf("devicee id is not match: %s != %s", got.ID, want)
-			return
+		want := switchbot.DeviceStatus{
+			ID:          "C271111EC0AB",
+			Type:        switchbot.Meter,
+			Hub:         "FA7310762361",
+			Humidity:    52,
+			Temperature: 26.1,
 		}
 
-		if want := switchbot.Meter; got.Type != want {
-			t.Errorf("device type is not match: %s != %s", got.Type, want)
-			return
-		}
-
-		if want := "FA7310762361"; got.Hub != want {
-			t.Errorf("device's parent hub id is not match: %s != %s", got.Hub, want)
-			return
-		}
-
-		if want := 52; got.Humidity != want {
-			t.Errorf("humidity is not match: %d != %d", got.Humidity, want)
-			return
-		}
-
-		if want := 26.1; got.Temperature != want {
-			t.Errorf("temperature is not match: %f != %f", got.Temperature, want)
-			return
+		if diff := cmp.Diff(want, got, cmp.AllowUnexported(switchbot.BrightnessState{})); diff != "" {
+			t.Fatalf("status mismatch (-want +got):\n%s", diff)
 		}
 	})
 
@@ -175,7 +142,7 @@ func TestDeviceStatus(t *testing.T) {
 	t.Run("curtain", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path != "/v1.0/devices/E2F6032048AB/status" {
+				if r.URL.Path != "/v1.1/devices/E2F6032048AB/status" {
 					t.Fatalf("unexpected request path: %s", r.URL.Path)
 				}
 
@@ -197,45 +164,24 @@ func TestDeviceStatus(t *testing.T) {
 		)
 		defer srv.Close()
 
-		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 		got, err := c.Device().Status(context.Background(), "E2F6032048AB")
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if want := "E2F6032048AB"; got.ID != want {
-			t.Errorf("devicee id is not match: %s != %s", got.ID, want)
-			return
+		want := switchbot.DeviceStatus{
+			ID:            "E2F6032048AB",
+			Type:          switchbot.Curtain,
+			Hub:           "FA7310762361",
+			IsCalibrated:  true,
+			IsGrouped:     false,
+			IsMoving:      false,
+			SlidePosition: 0,
 		}
 
-		if want := switchbot.Curtain; got.Type != want {
-			t.Errorf("device type is not match: %s != %s", got.Type, want)
-			return
-		}
-
-		if want := "FA7310762361"; got.Hub != want {
-			t.Errorf("device's parent hub id is not match: %s != %s", got.Hub, want)
-			return
-		}
-
-		if !got.IsCalibrated {
-			t.Error("device is calibrated but got false")
-			return
-		}
-
-		if got.IsGrouped {
-			t.Error("device is not grouped but got true")
-			return
-		}
-
-		if got.IsMoving {
-			t.Error("device is not moving but got true")
-			return
-		}
-
-		if want := 0; got.SlidePosition != want {
-			t.Errorf("slide position is not match: %d != %d", got.Humidity, want)
-			return
+		if diff := cmp.Diff(want, got, cmp.AllowUnexported(switchbot.BrightnessState{})); diff != "" {
+			t.Fatalf("status mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
@@ -309,7 +255,7 @@ func TestDeviceStatusBrightness(t *testing.T) {
 			)
 			defer srv.Close()
 
-			c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+			c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 			got, err := c.Device().Status(context.Background(), "E2F6032048AB")
 			if err != nil {
 				t.Fatal(err)
@@ -355,18 +301,38 @@ func testDeviceCommand(t *testing.T, wantPath string, wantBody string) http.Hand
 }
 
 func TestDeviceCommand(t *testing.T) {
+	t.Run("create a temporary passcode", func(t *testing.T) {
+		srv := httptest.NewServer(testDeviceCommand(
+			t,
+			"/v1.1/devices/F7538E1ABCEB/commands",
+			`{"command":"createKey","parameter":"{\"name\":\"Guest Code\",\"type\":\"timeLimit\",\"password\":\"12345678\",\"startTime\":1664640056,\"endTime\":1665331432}","commandType":"command"}
+`,
+		))
+		defer srv.Close()
+
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
+
+		cmd, err := switchbot.CreateKeyCommand("Guest Code", switchbot.TimeLimitPasscode, "12345678", time.Date(2022, time.October, 1, 16, 00, 56, 0, time.UTC), time.Date(2022, time.October, 9, 16, 3, 52, 0, time.UTC))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := c.Device().Command(context.Background(), "F7538E1ABCEB", cmd); err != nil {
+			t.Fatal(err)
+		}
+	})
 	t.Run("turn a bot on", func(t *testing.T) {
 		srv := httptest.NewServer(testDeviceCommand(
 			t,
-			"/v1.0/devices/210/commands",
+			"/v1.1/devices/210/commands",
 			`{"command":"turnOn","parameter":"default","commandType":"command"}
 `,
 		))
 		defer srv.Close()
 
-		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
-		if err := c.Device().Command(context.Background(), "210", switchbot.TurnOn()); err != nil {
+		if err := c.Device().Command(context.Background(), "210", switchbot.TurnOnCommand()); err != nil {
 			t.Fatal(err)
 		}
 	})
@@ -374,15 +340,15 @@ func TestDeviceCommand(t *testing.T) {
 	t.Run("set the color value of a Color Bulb Request", func(t *testing.T) {
 		srv := httptest.NewServer(testDeviceCommand(
 			t,
-			"/v1.0/devices/84F70353A411/commands",
+			"/v1.1/devices/84F70353A411/commands",
 			`{"command":"setColor","parameter":"122:80:20","commandType":"command"}
 `,
 		))
 		defer srv.Close()
 
-		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
-		if err := c.Device().Command(context.Background(), "84F70353A411", switchbot.SetColor(122, 80, 20)); err != nil {
+		if err := c.Device().Command(context.Background(), "84F70353A411", switchbot.SetColorCommand(122, 80, 20)); err != nil {
 			t.Fatal(err)
 		}
 	})
@@ -390,15 +356,15 @@ func TestDeviceCommand(t *testing.T) {
 	t.Run("set an air conditioner", func(t *testing.T) {
 		srv := httptest.NewServer(testDeviceCommand(
 			t,
-			"/v1.0/devices/02-202007201626-70/commands",
+			"/v1.1/devices/02-202007201626-70/commands",
 			`{"command":"setAll","parameter":"26,1,3,on","commandType":"command"}
 `,
 		))
 		defer srv.Close()
 
-		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
-		if err := c.Device().Command(context.Background(), "02-202007201626-70", switchbot.ACSetAll(26, switchbot.ACAuto, switchbot.ACMedium, switchbot.PowerOn)); err != nil {
+		if err := c.Device().Command(context.Background(), "02-202007201626-70", switchbot.ACSetAllCommand(26, switchbot.ACAuto, switchbot.ACMedium, switchbot.PowerOn)); err != nil {
 			t.Fatal(err)
 		}
 	})
@@ -406,15 +372,15 @@ func TestDeviceCommand(t *testing.T) {
 	t.Run("set trigger a customized button", func(t *testing.T) {
 		srv := httptest.NewServer(testDeviceCommand(
 			t,
-			"/v1.0/devices/02-202007201626-10/commands",
+			"/v1.1/devices/02-202007201626-10/commands",
 			`{"command":"ボタン","parameter":"default","commandType":"customize"}
 `,
 		))
 		defer srv.Close()
 
-		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
-		if err := c.Device().Command(context.Background(), "02-202007201626-10", switchbot.ButtonPush("ボタン")); err != nil {
+		if err := c.Device().Command(context.Background(), "02-202007201626-10", switchbot.ButtonPushCommand("ボタン")); err != nil {
 			t.Fatal(err)
 		}
 	})

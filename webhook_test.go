@@ -39,7 +39,7 @@ func TestWebhookSetup(t *testing.T) {
 	)
 	defer srv.Close()
 
-	c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+	c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
 	if err := c.Webhook().Setup(context.Background(), "url1", "ALL"); err != nil {
 		t.Fatal(err)
@@ -73,7 +73,7 @@ func TestWebhookQuery(t *testing.T) {
 		)
 		defer srv.Close()
 
-		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
 		if err := c.Webhook().Query(context.Background(), switchbot.QueryURL, ""); err != nil {
 			t.Fatal(err)
@@ -106,7 +106,7 @@ func TestWebhookQuery(t *testing.T) {
 		)
 		defer srv.Close()
 
-		c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
 		if err := c.Webhook().Query(context.Background(), switchbot.QueryDetails, "url1"); err != nil {
 			t.Fatal(err)
@@ -143,7 +143,7 @@ func TestWebhookUpdate(t *testing.T) {
 	)
 	defer srv.Close()
 
-	c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+	c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
 	if err := c.Webhook().Update(context.Background(), "url1", true); err != nil {
 		t.Fatal(err)
@@ -176,7 +176,7 @@ func TestWebhookDelete(t *testing.T) {
 	)
 	defer srv.Close()
 
-	c := switchbot.New("", switchbot.WithEndpoint(srv.URL))
+	c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
 
 	if err := c.Webhook().Delete(context.Background(), "url1"); err != nil {
 		t.Fatal(err)
@@ -238,7 +238,7 @@ func TestParseWebhook(t *testing.T) {
 							DeviceMac:      "01:00:5e:90:10:00",
 							DetectionState: "NOT_DETECTED",
 							DoorMode:       "OUT_DOOR",
-							Brightness:     "dim",
+							Brightness:     switchbot.AmbientBrightnessDim,
 							OpenState:      "open",
 							TimeOfSample:   123456789,
 						},
@@ -443,7 +443,7 @@ func TestParseWebhook(t *testing.T) {
 						Context: switchbot.ColorBulbEventContext{
 							DeviceType:       "WoBulb",
 							DeviceMac:        "01:00:5e:90:10:00",
-							PowerState:       "ON",
+							PowerState:       switchbot.PowerOn,
 							Brightness:       10,
 							Color:            "255:245:235",
 							ColorTemperature: 3500,
@@ -479,7 +479,7 @@ func TestParseWebhook(t *testing.T) {
 						Context: switchbot.StripLightEventContext{
 							DeviceType:   "WoStrip",
 							DeviceMac:    "01:00:5e:90:10:00",
-							PowerState:   "ON",
+							PowerState:   switchbot.PowerOn,
 							Brightness:   10,
 							Color:        "255:245:235",
 							TimeOfSample: 123456789,
@@ -514,7 +514,7 @@ func TestParseWebhook(t *testing.T) {
 						Context: switchbot.PlugMiniUSEventContext{
 							DeviceType:   "WoPlugUS",
 							DeviceMac:    "01:00:5e:90:10:00",
-							PowerState:   "ON",
+							PowerState:   switchbot.PowerOn,
 							TimeOfSample: 123456789,
 						},
 					}
@@ -547,7 +547,7 @@ func TestParseWebhook(t *testing.T) {
 						Context: switchbot.PlugMiniJPEventContext{
 							DeviceType:   "WoPlugJP",
 							DeviceMac:    "01:00:5e:90:10:00",
-							PowerState:   "ON",
+							PowerState:   switchbot.PowerOn,
 							TimeOfSample: 123456789,
 						},
 					}
@@ -563,5 +563,287 @@ func TestParseWebhook(t *testing.T) {
 		defer srv.Close()
 
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoPlugJP","deviceMac":"01:00:5e:90:10:00","powerState":"ON","timeOfSample":123456789}}`)
+	})
+
+	t.Run("Robot Vacuum Cleaner S1", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.SweeperEvent); ok {
+					want := switchbot.SweeperEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.SweeperEventContext{
+							DeviceType:    "WoSweeper",
+							DeviceMac:     "01:00:5e:90:10:00",
+							WorkingStatus: switchbot.CleanerStandBy,
+							OnlineStatus:  switchbot.CleanerOnline,
+							Battery:       100,
+							TimeOfSample:  123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a sweeper event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoSweeper","deviceMac":"01:00:5e:90:10:00","workingStatus":"StandBy","onlineStatus":"online","battery":100,"timeOfSample":123456789}}`)
+	})
+
+	t.Run("Robot Vacuum Cleaner S1 Plus", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.SweeperEvent); ok {
+					want := switchbot.SweeperEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.SweeperEventContext{
+							DeviceType:    "WoSweeperPlus",
+							DeviceMac:     "01:00:5e:90:10:00",
+							WorkingStatus: switchbot.CleanerStandBy,
+							OnlineStatus:  switchbot.CleanerOnline,
+							Battery:       100,
+							TimeOfSample:  123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a sweeper plus event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoSweeperPlus","deviceMac":"01:00:5e:90:10:00","workingStatus":"StandBy","onlineStatus":"online","battery":100,"timeOfSample":123456789}}`)
+	})
+
+	t.Run("Ceiling Light", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.CeilingEvent); ok {
+					want := switchbot.CeilingEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.CeilingEventContext{
+							DeviceType:       "WoCeiling",
+							DeviceMac:        "01:00:5e:90:10:00",
+							PowerState:       switchbot.PowerOn,
+							Brightness:       10,
+							ColorTemperature: 3500,
+							TimeOfSample:     123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a ceiling event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoCeiling","deviceMac":"01:00:5e:90:10:00","powerState":"ON","brightness":10,"colorTemperature":3500,"timeOfSample":123456789}}`)
+	})
+
+	t.Run("Ceiling Light Pro", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.CeilingEvent); ok {
+					want := switchbot.CeilingEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.CeilingEventContext{
+							DeviceType:       "WoCeilingPro",
+							DeviceMac:        "01:00:5e:90:10:00",
+							PowerState:       switchbot.PowerOn,
+							Brightness:       10,
+							ColorTemperature: 3500,
+							TimeOfSample:     123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a ceiling event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoCeilingPro","deviceMac":"01:00:5e:90:10:00","powerState":"ON","brightness":10,"colorTemperature":3500,"timeOfSample":123456789}}`)
+	})
+
+	t.Run("Keypad", func(t *testing.T) {
+		t.Run("create a passcode", func(t *testing.T) {
+			srv := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					event, err := switchbot.ParseWebhookRequest(r)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if got, ok := event.(*switchbot.KeypadEvent); ok {
+						want := switchbot.KeypadEvent{
+							EventType:    "changeReport",
+							EventVersion: "1",
+							Context: switchbot.KeypadEventContext{
+								DeviceType:   "WoKeypad",
+								DeviceMac:    "01:00:5e:90:10:00",
+								EventName:    "createKey",
+								CommandID:    "CMD-1663558451952-01",
+								Result:       "success",
+								TimeOfSample: 123456789,
+							},
+						}
+
+						if diff := cmp.Diff(want, *got); diff != "" {
+							t.Fatalf("event mismatch (-want +got):\n%s", diff)
+						}
+					} else {
+						t.Fatalf("given webhook event must be a keypad event but %T", event)
+					}
+				}),
+			)
+			defer srv.Close()
+
+			sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoKeypad","deviceMac":"01:00:5e:90:10:00","eventName":"createKey","commandId":"CMD-1663558451952-01","result":"success","timeOfSample":123456789}}`)
+		})
+		t.Run("delete a passcode", func(t *testing.T) {
+			srv := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					event, err := switchbot.ParseWebhookRequest(r)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if got, ok := event.(*switchbot.KeypadEvent); ok {
+						want := switchbot.KeypadEvent{
+							EventType:    "changeReport",
+							EventVersion: "1",
+							Context: switchbot.KeypadEventContext{
+								DeviceType:   "WoKeypad",
+								DeviceMac:    "01:00:5e:90:10:00",
+								EventName:    "deleteKey",
+								CommandID:    "CMD-1663558451952-01",
+								Result:       "success",
+								TimeOfSample: 123456789,
+							},
+						}
+
+						if diff := cmp.Diff(want, *got); diff != "" {
+							t.Fatalf("event mismatch (-want +got):\n%s", diff)
+						}
+					} else {
+						t.Fatalf("given webhook event must be a keypad event but %T", event)
+					}
+				}),
+			)
+			defer srv.Close()
+
+			sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoKeypad","deviceMac":"01:00:5e:90:10:00","eventName":"deleteKey","commandId":"CMD-1663558451952-01","result":"success","timeOfSample":123456789}}`)
+		})
+	})
+
+	t.Run("Keypad Touch", func(t *testing.T) {
+		t.Run("create a passcode", func(t *testing.T) {
+			srv := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					event, err := switchbot.ParseWebhookRequest(r)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if got, ok := event.(*switchbot.KeypadEvent); ok {
+						want := switchbot.KeypadEvent{
+							EventType:    "changeReport",
+							EventVersion: "1",
+							Context: switchbot.KeypadEventContext{
+								DeviceType:   "WoKeypadTouch",
+								DeviceMac:    "01:00:5e:90:10:00",
+								EventName:    "createKey",
+								CommandID:    "CMD-1663558451952-01",
+								Result:       "success",
+								TimeOfSample: 123456789,
+							},
+						}
+
+						if diff := cmp.Diff(want, *got); diff != "" {
+							t.Fatalf("event mismatch (-want +got):\n%s", diff)
+						}
+					} else {
+						t.Fatalf("given webhook event must be a keypad touch event but %T", event)
+					}
+				}),
+			)
+			defer srv.Close()
+
+			sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoKeypadTouch","deviceMac":"01:00:5e:90:10:00","eventName":"createKey","commandId":"CMD-1663558451952-01","result":"success","timeOfSample":123456789}}`)
+		})
+		t.Run("delete a passcode", func(t *testing.T) {
+			srv := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					event, err := switchbot.ParseWebhookRequest(r)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if got, ok := event.(*switchbot.KeypadEvent); ok {
+						want := switchbot.KeypadEvent{
+							EventType:    "changeReport",
+							EventVersion: "1",
+							Context: switchbot.KeypadEventContext{
+								DeviceType:   "WoKeypadTouch",
+								DeviceMac:    "01:00:5e:90:10:00",
+								EventName:    "deleteKey",
+								CommandID:    "CMD-1663558451952-01",
+								Result:       "success",
+								TimeOfSample: 123456789,
+							},
+						}
+
+						if diff := cmp.Diff(want, *got); diff != "" {
+							t.Fatalf("event mismatch (-want +got):\n%s", diff)
+						}
+					} else {
+						t.Fatalf("given webhook event must be a keypad touch event but %T", event)
+					}
+				}),
+			)
+			defer srv.Close()
+
+			sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoKeypadTouch","deviceMac":"01:00:5e:90:10:00","eventName":"deleteKey","commandId":"CMD-1663558451952-01","result":"success","timeOfSample":123456789}}`)
+		})
 	})
 }
