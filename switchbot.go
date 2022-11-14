@@ -11,7 +11,9 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"net/http/httputil"
 	"strconv"
 	"strings"
 	"time"
@@ -27,6 +29,8 @@ type Client struct {
 	openToken string
 	secretKey string
 	endpoint  string
+
+	debug bool
 
 	deviceService  *DeviceService
 	sceneService   *SceneService
@@ -152,6 +156,13 @@ func WithEndpoint(endpoint string) Option {
 	}
 }
 
+// WithDebug configures the client to print debug logs.
+func WithDebug() Option {
+	return func(c *Client) {
+		c.debug = true
+	}
+}
+
 // httpResponse wraps a http.Response object to easily decode and close its response body.
 type httpResponse struct {
 	*http.Response
@@ -187,9 +198,25 @@ func (c *Client) do(ctx context.Context, method, path string, body io.Reader) (*
 	req.Header.Add("t", t)
 	req.Header.Add("Content-Type", "application/json; charset=utf8")
 
+	if c.debug {
+		dump, err := httputil.DumpRequestOut(req, true)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("Request:\n%s\n", dump)
+	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if c.debug {
+		dump, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("Response:\n%s\n", dump)
 	}
 
 	// based on https://github.com/OpenWonderLabs/SwitchBotAPI/blob/7a68353d84d07d439a11cb5503b634f24302f733/README.md#standard-http-error-codes
