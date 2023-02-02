@@ -1,4 +1,4 @@
-module github.com/nasa9084/go-switchbot
+module github.com/nasa9084/go-switchbot/v2
 
 go 1.19
 
