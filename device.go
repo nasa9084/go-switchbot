@@ -151,8 +151,8 @@ type DeviceStatus struct {
 	Color                  string               `json:"color"`
 	ColorTemperature       int                  `json:"colorTemperature"`
 	IsLackWater            bool                 `json:"lackWater"`
-	Voltage                int                  `json:"voltage"`
-	Weight                 int                  `json:"weight"`
+	Voltage                float64              `json:"voltage"`
+	Weight                 float64              `json:"weight"`
 	ElectricityOfDay       int                  `json:"electricityOfDay"`
 	ElectricCurrent        float64              `json:"electricCurrent"`
 	LockState              string               `json:"lockState"`
