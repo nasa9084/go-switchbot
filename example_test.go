@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nasa9084/go-switchbot"
+	"github.com/nasa9084/go-switchbot/v2"
 )
 
 func ExamplePrintPhysicalDevices() {
