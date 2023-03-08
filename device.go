@@ -44,7 +44,7 @@ type Device struct {
 	Type                 PhysicalDeviceType `json:"deviceType"`
 	IsEnableCloudService bool               `json:"enableCloudService"`
 	Hub                  string             `json:"hubDeviceId"`
-	Curtains             []string           `json:"curtainDeviceesIds"`
+	Curtains             []string           `json:"curtainDevicesIds"`
 	IsCalibrated         bool               `json:"calibrate"`
 	IsGrouped            bool               `json:"group"`
 	IsMaster             bool               `json:"master"`
