@@ -53,6 +53,10 @@ type Device struct {
 	LockDeviceIDs        []string           `json:"lockDeviceIds"`
 	LockDeviceID         string             `json:"lockDeviceId"`
 	KeyList              []KeyListItem      `json:"keyList"`
+	Version              int                `json:"version"`
+	BlindTilts           []string           `json:"blindTiltDeviceIds"`
+	Direction            string             `json:"direction"`
+	SlidePosition        int                `json:"slidePosition"`
 }
 
 // KeyListItem is an item for keyList, which maintains a list of passcodes.
@@ -160,6 +164,8 @@ type DeviceStatus struct {
 	WorkingStatus          CleanerWorkingStatus `json:"workingStatus"`
 	OnlineStatus           CleanerOnlineStatus  `json:"onlineStatus"`
 	Battery                int                  `json:"battery"`
+	Version                int                  `json:"version"`
+	Direction              string               `json:"direction"`
 }
 
 type PowerState string
@@ -609,6 +615,58 @@ func ButtonPushCommand(name string) Command {
 		Command:     name,
 		Parameter:   "default",
 		CommandType: "customize",
+	}
+}
+
+// BlindTiltSetPositionDirection represents the direction for blind tilt devices' set position direction.
+type BlindTiltSetPositionDirection string
+
+const (
+	UpDirection   BlindTiltSetPositionDirection = "up"
+	DownDirection BlindTiltSetPositionDirection = "down"
+)
+
+// BlindTiltSetPosition returns a new Command which sets blind tilt devices' position.
+func BlindTiltSetPositionCommand(direction BlindTiltSetPositionDirection, position int) Command {
+	parameter := string(direction) + ";" + strconv.Itoa(position)
+
+	return DeviceCommandRequest{
+		Command:     "setPosition",
+		Parameter:   parameter,
+		CommandType: "command",
+	}
+}
+
+// FullyOpenCommand returns a new Command which sets the blind tilt devices' position to open.
+// This is equivalent to up;100 or down;100 which means equivalent to BlindTiltSetPositionCommand(UpDirection, 100)
+// or BlindTiltSetPositionCommand(DownDirection, 100) but the command itself is different.
+func FullyOpenCommand() Command {
+	return DeviceCommandRequest{
+		Command:     "fullyOpen",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+// CloseUpCommand returns a new Command which sets the blind tilt devices' position to closed up.
+// This is equivalent to up;0 which means equivalent to BlindTiltSetPositionCommand(UpDirection, 0)
+// but the command itself is different.
+func CloseUpCommand() Command {
+	return DeviceCommandRequest{
+		Command:     "closeUp",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+// CloseDownCommand returns a new Command which sets the blind tilt devices' position to closed down.
+// This is equivalent to down;0 which means equivalent to BlindTiltSetPositionCommand(DownDirection, 0)
+// but the command itself is different.
+func CloseDownCommand() Command {
+	return DeviceCommandRequest{
+		Command:     "closeDown",
+		Parameter:   "default",
+		CommandType: "command",
 	}
 }
 

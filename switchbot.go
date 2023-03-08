@@ -98,6 +98,8 @@ const (
 	PanTiltCam PhysicalDeviceType = "Pan/Tilt Cam"
 	//PanTiltCam2K is SwitchBot Pan/Tilt Cam 2K Model No. W3101100
 	PanTiltCam2K PhysicalDeviceType = "Pan/Tilt Cam 2K"
+	// BlindTilt is SwitchBot Blind Tilt Model No. W2701600
+	BlindTilt PhysicalDeviceType = "Blind Tilt"
 )
 
 type VirtualDeviceType string
