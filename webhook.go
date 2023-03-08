@@ -112,7 +112,7 @@ type webhookConfig struct {
 
 // Update do update the configuration of the webhook.
 func (svc *WebhookService) Update(ctx context.Context, url string, enable bool) error {
-	const path = "/v1.1/webhook/queryWebhook"
+	const path = "/v1.1/webhook/updateWebhook"
 
 	req := webhookUpdateRequest{
 		Action: "updateWebhook",
