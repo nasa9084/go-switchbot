@@ -53,7 +53,7 @@ type Device struct {
 	LockDeviceIDs        []string           `json:"lockDeviceIds"`
 	LockDeviceID         string             `json:"lockDeviceId"`
 	KeyList              []KeyListItem      `json:"keyList"`
-	Version              int                `json:"version"`
+	Version              string             `json:"version"`
 	BlindTilts           []string           `json:"blindTiltDeviceIds"`
 	Direction            string             `json:"direction"`
 	SlidePosition        int                `json:"slidePosition"`
@@ -164,7 +164,7 @@ type DeviceStatus struct {
 	WorkingStatus          CleanerWorkingStatus `json:"workingStatus"`
 	OnlineStatus           CleanerOnlineStatus  `json:"onlineStatus"`
 	Battery                int                  `json:"battery"`
-	Version                int                  `json:"version"`
+	Version                string               `json:"version"`
 	Direction              string               `json:"direction"`
 }
 
