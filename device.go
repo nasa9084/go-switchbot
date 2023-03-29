@@ -164,7 +164,7 @@ type DeviceStatus struct {
 	WorkingStatus          CleanerWorkingStatus `json:"workingStatus"`
 	OnlineStatus           CleanerOnlineStatus  `json:"onlineStatus"`
 	Battery                int                  `json:"battery"`
-	Version                string               `json:"version"`
+	Version                DeviceVersion        `json:"version"`
 	Direction              string               `json:"direction"`
 }
 
