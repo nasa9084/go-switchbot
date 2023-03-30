@@ -1,6 +1,10 @@
-package switchbot
+package switchbot_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/nasa9084/go-switchbot/v3"
+)
 
 func TestDeviceVersion(t *testing.T) {
 	t.Run("UnmarshalJSON", func(t *testing.T) {
@@ -18,7 +22,7 @@ func TestDeviceVersion(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				var is DeviceVersion
+				var is switchbot.DeviceVersion
 				if err := is.UnmarshalJSON([]byte(tt.args.json)); (err != nil) != tt.wantErr {
 					t.Errorf("UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 				}
