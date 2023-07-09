@@ -49,7 +49,7 @@ type Device struct {
 	IsGrouped            bool               `json:"group"`
 	IsMaster             bool               `json:"master"`
 	OpenDirection        string             `json:"openDirection"`
-	GroupName            bool               `json:"groupName"` // is this Boolean, right?
+	GroupName            string             `json:"groupName"`
 	LockDeviceIDs        []string           `json:"lockDeviceIds"`
 	LockDeviceID         string             `json:"lockDeviceId"`
 	KeyList              []KeyListItem      `json:"keyList"`
