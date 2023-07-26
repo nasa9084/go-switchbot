@@ -48,6 +48,8 @@ const (
 	HubPlus PhysicalDeviceType = "Hub Plus"
 	// HubMini is SwitchBot Hub Mini Model No. W0202200
 	HubMini PhysicalDeviceType = "Hub Mini"
+	// Hub2 is SwitchBot Hub 2 Model No. W3202100
+	Hub2 PhysicalDeviceType = "Hub 2"
 	// Bot is SwitchBot Bot Model No. SwitchBot S1
 	Bot PhysicalDeviceType = "Bot"
 	// Curtain is SwitchBot Curtain Model No. W0701600
@@ -60,6 +62,8 @@ const (
 	MeterPlusJP PhysicalDeviceType = "Meter Plus (JP)"
 	// MeterPlusUS is SwitchBot Thermometer and Hygrometer Plus (US) Model No. W2301500
 	MeterPlusUS PhysicalDeviceType = "Meter Plus (US)"
+	// WoIOSensor is SwitchBot Indoor/Outdoor Thermo-Hygrometer Model No. W3400010
+	WoIOSensor PhysicalDeviceType = "WoIOSensor"
 	// Humidifier is SwitchBot Humidifier Model No. W0801801
 	Humidifier PhysicalDeviceType = "Humidifier"
 	// SmartFan is SwitchBot Smart Fan Model No. W0601100
@@ -76,6 +80,8 @@ const (
 	RobotVacuumCleanerS1 PhysicalDeviceType = "Robot Vacuum Cleaner S1"
 	// RobotVacuumCleanerS1Plus is SwitchBot Robot Vacuum Cleaner S1 Plus Model No. W3011010; currently only available in Japan
 	RobotVacuumCleanerS1Plus PhysicalDeviceType = "Robot Vacuum Cleaner S1 Plus"
+	// WoSweeperMini is SwitchBot Robot Vacuum Cleaner K10+ Model No. W3011020
+	WoSweeperMini PhysicalDeviceType = "WoSweeperMini"
 	// MotionSensor is SwitchBot Motion Sensor Model No. W1101500
 	MotionSensor PhysicalDeviceType = "Motion Sensor"
 	// ContactSensor is SwitchBot Contact Sensor Model No. W1201500
