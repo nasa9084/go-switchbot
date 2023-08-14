@@ -151,6 +151,7 @@ type DeviceStatus struct {
 	ShakeRange             int                  `json:"shakeRange"`
 	IsMoveDetected         bool                 `json:"moveDetected"`
 	Brightness             BrightnessState      `json:"brightness"`
+	LightLevel             int                  `json:"lightLevel"`
 	OpenState              OpenState            `json:"openState"`
 	Color                  string               `json:"color"`
 	ColorTemperature       int                  `json:"colorTemperature"`
