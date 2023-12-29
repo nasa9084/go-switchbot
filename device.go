@@ -115,7 +115,7 @@ func (svc *DeviceService) List(ctx context.Context) ([]Device, []InfraredDevice,
 	}
 
 	if response.StatusCode == 190 {
-		return nil, nil, errors.New("device internal error due to device states not synchronized with server")
+		return nil, nil, errors.New("device internal error due to device states not synchronized with server or too many requests limit reached")
 	} else if response.StatusCode != 100 {
 		return nil, nil, fmt.Errorf("unknown error %d from device list API", response.StatusCode)
 	}
