@@ -234,7 +234,7 @@ func (svc *WebhookService) Delete(ctx context.Context, url string) error {
 		URL:    url,
 	}
 
-	resp, err := svc.c.del(ctx, path, req)
+	resp, err := svc.c.post(ctx, path, req)
 	if err != nil {
 		return err
 	}
