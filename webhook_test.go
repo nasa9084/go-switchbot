@@ -155,8 +155,8 @@ func TestWebhookDelete(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"statusCode":100,"body":{},"message":""}`))
 
-			if r.Method != http.MethodDelete {
-				t.Fatalf("DELETE method is expected but %s", r.Method)
+			if r.Method != http.MethodPost {
+				t.Fatalf("POST method is expected but %s", r.Method)
 			}
 
 			var got map[string]string
