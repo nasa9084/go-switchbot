@@ -73,6 +73,30 @@ const (
 type webhookQueryResponse struct {
 }
 
+type webhookQueryUrlResponse struct {
+	StatusCode int                         `json:"statusCode"`
+	Message    string                      `json:"message"`
+	Body       webhookQueryUrlResponseBody `json:"body"`
+}
+
+type webhookQueryUrlResponseBody struct {
+	URLs []string `json:"urls"`
+}
+
+type webhookQueryDetailsResponse struct {
+	StatusCode int                   `json:"statusCode"`
+	Message    string                `json:"message"`
+	Body       []WebhookQueryDetails `json:"body"`
+}
+
+type WebhookQueryDetails struct {
+	URL        string `json:"url"`
+	CreateTime int64  `json:"createTime"`
+	LastUpdate int64  `json:"lastUpdateTime"`
+	DeviceList string `json:"deviceList"`
+	Enable     bool   `json:"enable"`
+}
+
 // Query retrieves the current configuration info of the webhook.
 // The second argument `url` is required for QueryDetails action type.
 func (svc *WebhookService) Query(ctx context.Context, action WebhookQueryActionType, url string) error {
@@ -98,6 +122,71 @@ func (svc *WebhookService) Query(ctx context.Context, action WebhookQueryActionT
 	defer resp.Close()
 
 	return nil
+}
+
+// QueryUrl retrieves the current url configuration info of the webhook.
+func (svc *WebhookService) QueryUrl(ctx context.Context) (string, error) {
+	const path = "/v1.1/webhook/queryWebhook"
+
+	req := webhookQueryRequest{
+		Action: QueryURL,
+	}
+
+	resp, err := svc.c.post(ctx, path, req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Close()
+
+	var response webhookQueryUrlResponse
+	if err := resp.DecodeJSON(&response); err != nil {
+		return "", err
+	}
+
+	if response.StatusCode == 190 {
+		return "", fmt.Errorf("undocumented error %d occurred for queryWebhook API: %s", response.StatusCode, response.Message)
+	} else if response.StatusCode != 100 {
+		return "", fmt.Errorf("unknown error %d from queryWebhook API: %s", response.StatusCode, response.Message)
+	}
+
+	if len(response.Body.URLs) < 1 {
+		return "", errors.New("queryWebhook API response urls is empty")
+	}
+
+	return response.Body.URLs[0], nil
+}
+
+// QueryDetails retrieves the current details configuration info of the webhook.
+func (svc *WebhookService) QueryDetails(ctx context.Context, url string) (*WebhookQueryDetails, error) {
+	const path = "/v1.1/webhook/queryWebhook"
+
+	req := webhookQueryRequest{
+		Action: QueryDetails,
+	}
+	req.URLs = []string{url}
+
+	resp, err := svc.c.post(ctx, path, req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Close()
+
+	var response webhookQueryDetailsResponse
+	if err := resp.DecodeJSON(&response); err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode == 190 {
+		return nil, fmt.Errorf("undocumented error %d occurred for queryWebhook API: %s", response.StatusCode, response.Message)
+	} else if response.StatusCode != 100 {
+		return nil, fmt.Errorf("unknown error %d from queryWebhook API: %s", response.StatusCode, response.Message)
+	}
+
+	if len(response.Body) < 1 {
+		return nil, errors.New("queryWebhook API response body is empty")
+	}
+
+	return &response.Body[0], nil
 }
 
 type webhookUpdateRequest struct {
@@ -145,7 +234,7 @@ func (svc *WebhookService) Delete(ctx context.Context, url string) error {
 		URL:    url,
 	}
 
-	resp, err := svc.c.del(ctx, path, req)
+	resp, err := svc.c.post(ctx, path, req)
 	if err != nil {
 		return err
 	}
