@@ -167,6 +167,7 @@ type DeviceStatus struct {
 	Battery                int                  `json:"battery"`
 	Version                DeviceVersion        `json:"version"`
 	Direction              string               `json:"direction"`
+	CO2                    int                  `json:"CO2"`
 }
 
 type PowerState string
