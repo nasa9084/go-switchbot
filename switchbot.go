@@ -106,8 +106,10 @@ const (
 	PanTiltCam2K PhysicalDeviceType = "Pan/Tilt Cam 2K"
 	// BlindTilt is SwitchBot Blind Tilt Model No. W2701600
 	BlindTilt PhysicalDeviceType = "Blind Tilt"
-	// MeterPro is SwitchBot CO2 Sensor Model No. W4900010
+	// MeterPro is SwitchBot Thermometer and Hygrometer Pro Model No. W4900000
 	MeterPro PhysicalDeviceType = "MeterPro"
+	// MeterPro(CO2) is SwitchBot CO2 Sensor Model No. W4900010
+	MeterProCO2 PhysicalDeviceType = "MeterPro(CO2)"
 )
 
 type VirtualDeviceType string
