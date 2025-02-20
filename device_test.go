@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/nasa9084/go-switchbot/v4"
+	"github.com/nasa9084/go-switchbot/v5"
 )
 
 var allowUnexported = cmp.AllowUnexported(switchbot.BrightnessState{}, switchbot.Mode{})
