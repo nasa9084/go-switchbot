@@ -144,11 +144,6 @@ type DeviceStatus struct {
 	IsGrouped              bool                 `json:"group"`
 	IsMoving               bool                 `json:"moving"`
 	SlidePosition          int                  `json:"slidePosition"`
-	FanMode                int                  `json:"mode"`
-	FanSpeed               int                  `json:"speed"`
-	IsShaking              bool                 `json:"shaking"`
-	ShakeCenter            int                  `json:"shakeCenter"`
-	ShakeRange             int                  `json:"shakeRange"`
 	IsMoveDetected         bool                 `json:"moveDetected"`
 	Brightness             BrightnessState      `json:"brightness"`
 	LightLevel             int                  `json:"lightLevel"`
@@ -168,6 +163,12 @@ type DeviceStatus struct {
 	Version                DeviceVersion        `json:"version"`
 	Direction              string               `json:"direction"`
 	CO2                    int                  `json:"CO2"`
+	Mode                   Mode                 `json:"mode"`
+	NightStatus            NightStatus          `json:"nightStatus"`
+	Oscillation            OscillationStatus    `json:"oscillation"`
+	VerticalOscillation    OscillationStatus    `json:"verticalOscillation"`
+	ChargingStatus         ChargingStatus       `json:"chargingStatus"`
+	FanSpeed               int                  `json:"fanSpeed"`
 }
 
 type PowerState string
@@ -257,6 +258,68 @@ const (
 	CleanerInTrouble        CleanerWorkingStatus = "InTrouble"
 	CleanerInRemoteControl  CleanerWorkingStatus = "InRemoteControl"
 	CleanerInDustCollecting CleanerWorkingStatus = "InDustCollecting"
+)
+
+type Mode struct {
+	circulatorMode CirculatorMode
+	intMode        int // evaporative humidifier or air purifier
+}
+
+func (mode *Mode) UnmarshalJSON(b []byte) error {
+	var iv int
+	if err := json.Unmarshal(b, &iv); err != nil {
+		var sv string
+		if err := json.Unmarshal(b, &sv); err != nil {
+			return fmt.Errorf("cannot unmarshal to both of int and string: %w", err)
+		}
+
+		mode.circulatorMode = CirculatorMode(sv)
+
+		return nil
+	}
+
+	mode.intMode = iv
+
+	return nil
+}
+
+func (mode Mode) CirculatorMode() (CirculatorMode, error) {
+	if mode.circulatorMode != "" {
+		return mode.circulatorMode, nil
+	}
+
+	return "", errors.New("circulator mode is only available for circulator and battery circulator")
+}
+
+type CirculatorMode string
+
+const (
+	CirculatorModeDirect      CirculatorMode = "direct"
+	CirculatorModeNatural     CirculatorMode = "natural"
+	CirculatorModeSleep       CirculatorMode = "sleep"
+	CirculatorModeUltraQuitet CirculatorMode = "baby"
+)
+
+type NightStatus string
+
+const (
+	NightStatusOff   NightStatus = "off"
+	NightStatusMode1 NightStatus = "1"
+	NightStatusMode2 NightStatus = "2"
+)
+
+type OscillationStatus string
+
+const (
+	OscillationStatusOn  OscillationStatus = "on"
+	OscillationStatusOff OscillationStatus = "off"
+)
+
+type ChargingStatus string
+
+const (
+	ChargingStatusCharging  ChargingStatus = "charging"
+	ChargingStatusUncharged ChargingStatus = "uncharged"
 )
 
 // Status get the status of a physical device that has been added to the current
