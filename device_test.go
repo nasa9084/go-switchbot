@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -280,7 +280,7 @@ func testDeviceCommand(t *testing.T, wantPath string, wantBody string) http.Hand
 			t.Fatalf("unexpected request path: %s != %s", r.URL.Path, wantPath)
 		}
 
-		b, err := ioutil.ReadAll(r.Body)
+		b, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Fatal(err)
 		}
