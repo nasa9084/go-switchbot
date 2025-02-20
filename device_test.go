@@ -14,6 +14,8 @@ import (
 	"github.com/nasa9084/go-switchbot/v4"
 )
 
+var allowUnexported = cmp.AllowUnexported(switchbot.BrightnessState{}, switchbot.Mode{})
+
 // https://github.com/OpenWonderLabs/SwitchBotAPI/blob/7a68353d84d07d439a11cb5503b634f24302f733/README.md#get-all-devices
 func TestDevices(t *testing.T) {
 	srv := httptest.NewServer(
@@ -133,7 +135,7 @@ func TestDeviceStatus(t *testing.T) {
 			Temperature: 26.1,
 		}
 
-		if diff := cmp.Diff(want, got, cmp.AllowUnexported(switchbot.BrightnessState{})); diff != "" {
+		if diff := cmp.Diff(want, got, allowUnexported); diff != "" {
 			t.Fatalf("status mismatch (-want +got):\n%s", diff)
 		}
 	})
@@ -180,7 +182,7 @@ func TestDeviceStatus(t *testing.T) {
 			SlidePosition: 0,
 		}
 
-		if diff := cmp.Diff(want, got, cmp.AllowUnexported(switchbot.BrightnessState{})); diff != "" {
+		if diff := cmp.Diff(want, got, allowUnexported); diff != "" {
 			t.Fatalf("status mismatch (-want +got):\n%s", diff)
 		}
 	})
