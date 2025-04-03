@@ -296,6 +296,8 @@ type ContactSensorEventContext struct {
 	Brightness AmbientBrightness `json:"brightness"`
 	// the state of the contact sensor, can be "open" or "close" or "timeOutNotClose"
 	OpenState string `json:"openState"`
+	// the current battery level, 0-100
+	Battery int `json:"battery"`
 }
 
 type MeterEvent struct {
