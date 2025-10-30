@@ -212,7 +212,7 @@ func TestParseWebhook(t *testing.T) {
 						t.Fatalf("event mismatch (-want +got):\n%s", diff)
 					}
 				} else {
-					t.Fatalf("given webhook event must be a motion sensor event but %T", event)
+					t.Fatalf("given webhook event must be a bot event but %T", event)
 				}
 			}),
 		)
@@ -248,7 +248,7 @@ func TestParseWebhook(t *testing.T) {
 						t.Fatalf("event mismatch (-want +got):\n%s", diff)
 					}
 				} else {
-					t.Fatalf("given webhook event must be a motion sensor event but %T", event)
+					t.Fatalf("given webhook event must be a curtain event but %T", event)
 				}
 			}),
 		)
@@ -460,7 +460,7 @@ func TestParseWebhook(t *testing.T) {
 						t.Fatalf("event mismatch (-want +got):\n%s", diff)
 					}
 				} else {
-					t.Fatalf("given webhook event must be a meter plus event but %T", event)
+					t.Fatalf("given webhook event must be an outdoor meter event but %T", event)
 				}
 			}),
 		)
@@ -1014,7 +1014,7 @@ func TestParseWebhook(t *testing.T) {
 						t.Fatalf("event mismatch (-want +got):\n%s", diff)
 					}
 				} else {
-					t.Fatalf("given webhook event must be a ceiling event but %T", event)
+					t.Fatalf("given webhook event must be a hub2 event but %T", event)
 				}
 			}),
 		)
