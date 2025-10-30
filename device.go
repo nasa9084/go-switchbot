@@ -169,6 +169,7 @@ type DeviceStatus struct {
 	VerticalOscillation    OscillationStatus    `json:"verticalOscillation"`
 	ChargingStatus         ChargingStatus       `json:"chargingStatus"`
 	FanSpeed               int                  `json:"fanSpeed"`
+	DeviceMode             BotDeviceMode        `json:"deviceMode"`
 }
 
 type PowerState string
@@ -320,6 +321,14 @@ type ChargingStatus string
 const (
 	ChargingStatusCharging  ChargingStatus = "charging"
 	ChargingStatusUncharged ChargingStatus = "uncharged"
+)
+
+type BotDeviceMode string
+
+const (
+	BotDeviceModePress     BotDeviceMode = "pressMode"
+	BotDeviceModeSwitch    BotDeviceMode = "switchMode"
+	BotDeviceModeCustomize BotDeviceMode = "customizeMode"
 )
 
 // Status get the status of a physical device that has been added to the current
