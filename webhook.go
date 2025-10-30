@@ -277,6 +277,29 @@ type BotEventContext struct {
 	Power string `json:"power"`
 }
 
+type CurtainEvent struct {
+	EventType    string              `json:"eventType"`
+	EventVersion string              `json:"eventVersion"`
+	Context      CurtainEventContext `json:"context"`
+}
+
+type CurtainEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// determines if the open position and the close position of
+	// a device have been properly calibrated or not
+	Calibrate bool `json:"calibrate"`
+	// determines if a Curtain is paired with or grouped with another Curtain or not
+	Group bool `json:"group"`
+	// the percentage of the distance between the calibrated open position
+	// and closed position that Curtain has traversed
+	SlidePosition int `json:"slidePosition"`
+	// the battery level of a Curtain
+	Battery int `json:"battery"`
+}
+
 type MotionSensorEvent struct {
 	EventType    string                   `json:"eventType"`
 	EventVersion string                   `json:"eventVersion"`
@@ -535,6 +558,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoHand":
 		// Bot
 		var event BotEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoCurtain":
+		// Curtain
+		var event CurtainEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}
