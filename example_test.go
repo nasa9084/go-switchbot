@@ -7,7 +7,7 @@ import (
 	"github.com/nasa9084/go-switchbot/v5"
 )
 
-func ExamplePrintPhysicalDevices() {
+func ExampleDeviceService_List() {
 	const (
 		openToken = "blahblahblah"
 		secretKey = "blahblahblah"
