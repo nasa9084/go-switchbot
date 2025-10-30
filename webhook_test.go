@@ -1022,4 +1022,45 @@ func TestParseWebhook(t *testing.T) {
 
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoHub2","deviceMac":"00:00:5E:00:53:00","temperature":13,"humidity":18,"lightLevel":19,"scale":"CELSIUS","timeOfSample":123456789}}`)
 	})
+
+	t.Run("battery circulator fan", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.BatteryCirculatorFanEvent); ok {
+					want := switchbot.BatteryCirculatorFanEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.BatteryCirculatorFanEventContext{
+							DeviceType:          "WoFan2",
+							DeviceMac:           "00:00:5E:00:53:00",
+							Mode:                switchbot.CirculatorModeDirect,
+							Version:             "V3.1",
+							Battery:             22,
+							PowerState:          switchbot.PowerOn,
+							NightStatus:         switchbot.NightStatusOff,
+							Oscillation:         switchbot.OscillationStatusOn,
+							VerticalOscillation: switchbot.OscillationStatusOn,
+							ChargingStatus:      switchbot.ChargingStatusCharging,
+							FanSpeed:            3,
+							TimeOfSample:        123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a battery circulator fan event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoFan2","deviceMac":"00:00:5E:00:53:00","mode":"direct","version":"V3.1","battery":22,"powerState":"ON","nightStatus":"off","oscillation":"on","verticalOscillation":"on","chargingStatus":"charging","fanSpeed":3,"timeOfSample":123456789}}`)
+	})
 }

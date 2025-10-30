@@ -609,6 +609,38 @@ type Hub2EventContext struct {
 	Scale string `json:"scale"`
 }
 
+type BatteryCirculatorFanEvent struct {
+	EventType    string                           `json:"eventType"`
+	EventVersion string                           `json:"eventVersion"`
+	Context      BatteryCirculatorFanEventContext `json:"context"`
+}
+
+type BatteryCirculatorFanEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// fan mode. direct mode: *direct*; natural mode: "natural";
+	// sleep mode: "sleep"; ultra quiet mode: "baby"
+	Mode CirculatorMode `json:"mode"`
+	// the current firmware version, e.g. V4.2
+	Version string `json:"version"`
+	// the current battery level
+	Battery int `json:"battery"`
+	// ON/OFF state
+	PowerState PowerState `json:"powerState"`
+	// set nightlight status. turn off: *off*; mode 1: *1*; mode 2: *2*
+	NightStatus NightStatus `json:"nightStatus"`
+	// set horizontal oscillation. turn on: *on*; turn off: *off*
+	Oscillation OscillationStatus `json:"oscillation"`
+	// set vertical oscillation. turn on: *on*; turn off: *off*
+	VerticalOscillation OscillationStatus `json:"verticalOscillation"`
+	// battery charge status. *charging* or *uncharged*
+	ChargingStatus ChargingStatus `json:"chargingStatus"`
+	// fan speed. 1~100
+	FanSpeed int `json:"fanSpeed"`
+}
+
 func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	deviceType, err := deviceTypeFromWebhookRequest(r)
 	if err != nil {
@@ -745,6 +777,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoHub2":
 		// Hub 2
 		var event Hub2Event
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoFan2":
+		// Battery Circulator Fan
+		var event BatteryCirculatorFanEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}
