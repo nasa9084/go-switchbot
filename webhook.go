@@ -260,6 +260,23 @@ func deviceTypeFromWebhookRequest(r *http.Request) (string, error) {
 	return deviceTypeBody.Context.DeviceType, nil
 }
 
+type BotEvent struct {
+	EventType    string          `json:"eventType"`
+	EventVersion string          `json:"eventVersion"`
+	Context      BotEventContext `json:"context"`
+}
+
+type BotEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// the current state of the device. This state is only valid for Switch Mode,
+	// where "on" stands for on and "off" stands for off. It will return "on" or
+	// "off" in Press Mode or Customize Mode, but the returned value can be neglected.
+	Power string `json:"power"`
+}
+
 type MotionSensorEvent struct {
 	EventType    string                   `json:"eventType"`
 	EventVersion string                   `json:"eventVersion"`
@@ -515,6 +532,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	}
 
 	switch deviceType {
+	case "WoHand":
+		// Bot
+		var event BotEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
 	case "WoPresence":
 		// Motion Sensor
 		var event MotionSensorEvent

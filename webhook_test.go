@@ -188,6 +188,39 @@ func TestParseWebhook(t *testing.T) {
 		http.DefaultClient.Post(url, "application/json", bytes.NewBufferString(req))
 	}
 
+	t.Run("bot", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.BotEvent); ok {
+					want := switchbot.BotEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.BotEventContext{
+							DeviceType:   "WoHand",
+							DeviceMac:    "00:00:5E:00:53:00",
+							Power:        "on",
+							TimeOfSample: 123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a motion sensor event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoHand","deviceMac":"00:00:5E:00:53:00","power":"on","battery":10,"deviceMode":"pressMode","timeOfSample":123456789}}`)
+	})
+
 	t.Run("motion sensor", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
