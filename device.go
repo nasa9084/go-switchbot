@@ -488,6 +488,15 @@ func SetPosition(index int, mode SetPositionMode, position int) Command {
 	}
 }
 
+// Pause returns a new Command to set curtain devices' state to PAUSE.
+func Pause() Command {
+	return DeviceCommandRequest{
+		Command:     "pause",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
 // LockCommand returns a new Command which rotates the Lock device to locked position.
 func LockCommand() Command {
 	return DeviceCommandRequest{
