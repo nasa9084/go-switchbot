@@ -300,6 +300,27 @@ type CurtainEventContext struct {
 	Battery int `json:"battery"`
 }
 
+type Curtain3Event struct {
+	EventType    string               `json:"eventType"`
+	EventVersion string               `json:"eventVersion"`
+	Context      Curtain3EventContext `json:"context"`
+}
+
+type Curtain3EventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// determines if the open position and the close position of a device have been properly calibrated or not
+	IsCalibrated bool `json:"calibrate"`
+	// determines if a Curtain is paired with or grouped with another Curtain or not
+	IsGrouped bool `json:"group"`
+	// the percentage of the distance between the calibrated open position and closed position that Curtain has traversed
+	SlidePosition int `json:"slidePosition"`
+	// the battery level of a Curtain
+	Battery int `json:"battery"`
+}
+
 type MotionSensorEvent struct {
 	EventType    string                   `json:"eventType"`
 	EventVersion string                   `json:"eventVersion"`
@@ -605,6 +626,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoCurtain":
 		// Curtain
 		var event CurtainEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoCurtain3":
+		// Curtain 3
+		var event Curtain3Event
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}

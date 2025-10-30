@@ -257,6 +257,42 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoCurtain","deviceMac":"00:00:5E:00:53:00","calibrate":false,"group":false,"slidePosition":50,"battery":100,"timeOfSample":123456789}}`)
 	})
 
+	t.Run("curtain3", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.Curtain3Event); ok {
+					want := switchbot.Curtain3Event{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.Curtain3EventContext{
+							DeviceType:    "WoCurtain3",
+							DeviceMac:     "00:00:5E:00:53:00",
+							IsCalibrated:  false,
+							IsGrouped:     false,
+							SlidePosition: 50,
+							Battery:       100,
+							TimeOfSample:  123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a curtain3 event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoCurtain3","deviceMac":"00:00:5E:00:53:00","calibrate":false,"group":false,"slidePosition":50,"battery":100,"timeOfSample":123456789}}`)
+	})
+
 	t.Run("motion sensor", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

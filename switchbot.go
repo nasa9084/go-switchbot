@@ -53,6 +53,8 @@ const (
 	Bot PhysicalDeviceType = "Bot"
 	// Curtain is SwitchBot Curtain Model No. W0701600
 	Curtain PhysicalDeviceType = "Curtain"
+	// Curtain3 is SwitchBot Curtain Model No. W2400000
+	Curtain3 PhysicalDeviceType = "Curtain3"
 	// Plug is SwitchBot Plug Model No. SP11
 	Plug PhysicalDeviceType = "Plug"
 	// Meter is SwitchBot Thermometer and Hygrometer Model No. SwitchBot MeterTH S1
