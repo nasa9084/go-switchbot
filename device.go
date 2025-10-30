@@ -753,6 +753,24 @@ func CloseDownCommand() Command {
 	}
 }
 
+// SetNightLightModeCommand returns a new Command which sets the circulator devices' night light mode.
+func SetNightLightModeCommand(mode NightStatus) Command {
+	return DeviceCommandRequest{
+		Command:     "setNightLightMode",
+		Parameter:   string(mode),
+		CommandType: "command",
+	}
+}
+
+// SetWindModeCommand returns a new Command which sets the curculator devices' wind mode.
+func SetWindModeCommand(mode CirculatorMode) Command {
+	return DeviceCommandRequest{
+		Command:     "setWindMode",
+		Parameter:   string(mode),
+		CommandType: "command",
+	}
+}
+
 // ACMode represents a mode for air conditioner.
 type ACMode int
 
