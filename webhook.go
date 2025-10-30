@@ -548,6 +548,27 @@ type KeypadEventContext struct {
 	Result string `json:"result"`
 }
 
+type Hub2Event struct {
+	EventType    string           `json:"eventType"`
+	EventVersion string           `json:"eventVersion"`
+	Context      Hub2EventContext `json:"context"`
+}
+
+type Hub2EventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// the current temperature reading
+	Temperature float64 `json:"temperature"`
+	// the current humidity reading in percentage
+	Humidity int `json:"humidity"`
+	// the level of illuminance of the ambience light, 1~20
+	LightLevel int `json:"lightLevel"`
+	// the current temperature unit being used
+	Scale string `json:"scale"`
+}
+
 func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	deviceType, err := deviceTypeFromWebhookRequest(r)
 	if err != nil {
@@ -663,6 +684,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoKeypad", "WoKeypadTouch":
 		// keypad
 		var event KeypadEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoHub2":
+		// Hub 2
+		var event Hub2Event
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}
