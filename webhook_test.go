@@ -398,6 +398,41 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoMeterPlus","deviceMac":"01:00:5e:90:10:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"timeOfSample":123456789}}`)
 	})
 
+	t.Run("outdoor meter", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.OutdoorMeterEvent); ok {
+					want := switchbot.OutdoorMeterEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.OutdoorMeterEventContext{
+							DeviceType:   "WoIOSensor",
+							DeviceMac:    "00:00:5E:00:53:00",
+							Temperature:  22.5,
+							Scale:        "CELSIUS",
+							Humidity:     31,
+							TimeOfSample: 123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a meter plus event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoIOSensor","deviceMac":"00:00:5E:00:53:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"timeOfSample":123456789}}`)
+	})
+
 	t.Run("lock", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

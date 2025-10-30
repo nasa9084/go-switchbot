@@ -372,6 +372,25 @@ type MeterPlusEventContext struct {
 	Humidity    int     `json:"humidity"`
 }
 
+type OutdoorMeterEvent struct {
+	EventType    string                   `json:"eventType"`
+	EventVersion string                   `json:"eventVersion"`
+	Context      OutdoorMeterEventContext `json:"context"`
+}
+
+type OutdoorMeterEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// the current temperature reading
+	Temperature float64 `json:"temperature"`
+	// the current temperature unit being used
+	Scale string `json:"scale"`
+	// the current humidity reading in percentage
+	Humidity int `json:"humidity"`
+}
+
 type LockEvent struct {
 	EventType    string           `json:"eventType"`
 	EventVersion string           `json:"eventVersion"`
@@ -600,6 +619,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoContact":
 		// Contact Sensor
 		var event ContactSensorEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoIOSensor":
+		// Indoor / Outdoor Meter
+		var event OutdoorMeterEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}

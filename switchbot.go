@@ -62,7 +62,8 @@ const (
 	// MeterPlusUS is SwitchBot Thermometer and Hygrometer Plus (US) Model No. W2301500
 	MeterPlusUS PhysicalDeviceType = "Meter Plus (US)"
 	// WoIOSensor is SwitchBot Indoor/Outdoor Thermo-Hygrometer Model No. W3400010
-	WoIOSensor PhysicalDeviceType = "WoIOSensor"
+	WoIOSensor   PhysicalDeviceType = "WoIOSensor"
+	OutdoorMeter PhysicalDeviceType = WoIOSensor
 	// Humidifier is SwitchBot Humidifier Model No. W0801801
 	Humidifier PhysicalDeviceType = "Humidifier"
 	// SmartFan is SwitchBot Smart Fan Model No. W0601100
