@@ -414,6 +414,7 @@ func TestParseWebhook(t *testing.T) {
 							Temperature:  22.5,
 							Scale:        "CELSIUS",
 							Humidity:     31,
+							Battery:      100,
 							TimeOfSample: 123456789,
 						},
 					}
@@ -428,7 +429,7 @@ func TestParseWebhook(t *testing.T) {
 		)
 		defer srv.Close()
 
-		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoMeter","deviceMac":"01:00:5e:90:10:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"timeOfSample":123456789}}`)
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoMeter","deviceMac":"01:00:5e:90:10:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"battery":100,"timeOfSample":123456789}}`)
 	})
 
 	t.Run("meter plus", func(t *testing.T) {
@@ -449,6 +450,7 @@ func TestParseWebhook(t *testing.T) {
 							Temperature:  22.5,
 							Scale:        "CELSIUS",
 							Humidity:     31,
+							Battery:      100,
 							TimeOfSample: 123456789,
 						},
 					}
@@ -465,7 +467,7 @@ func TestParseWebhook(t *testing.T) {
 
 		// in the request body example the deviceType is Meter but I think it should be WoMeterPlus
 		// https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/README-v1.0.md#meter-plus
-		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoMeterPlus","deviceMac":"01:00:5e:90:10:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"timeOfSample":123456789}}`)
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoMeterPlus","deviceMac":"01:00:5e:90:10:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"battery":100,"timeOfSample":123456789}}`)
 	})
 
 	t.Run("outdoor meter", func(t *testing.T) {
@@ -486,6 +488,7 @@ func TestParseWebhook(t *testing.T) {
 							Temperature:  22.5,
 							Scale:        "CELSIUS",
 							Humidity:     31,
+							Battery:      100,
 							TimeOfSample: 123456789,
 						},
 					}
@@ -500,7 +503,7 @@ func TestParseWebhook(t *testing.T) {
 		)
 		defer srv.Close()
 
-		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoIOSensor","deviceMac":"00:00:5E:00:53:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"timeOfSample":123456789}}`)
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoIOSensor","deviceMac":"00:00:5E:00:53:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"battery":100,"timeOfSample":123456789}}`)
 	})
 
 	t.Run("meter pro", func(t *testing.T) {

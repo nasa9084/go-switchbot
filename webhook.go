@@ -335,6 +335,7 @@ type MotionSensorEventContext struct {
 	// the motion state of the device, "DETECTED" stands for motion is detected;
 	// "NOT_DETECTED" stands for motion has not been detected for some time
 	DetectionState string `json:"detectionState"`
+	Battery        int    `json:"battery"`
 }
 
 type ContactSensorEvent struct {
@@ -390,6 +391,7 @@ type MeterEventContext struct {
 	Temperature float64 `json:"temperature"`
 	Scale       string  `json:"scale"`
 	Humidity    int     `json:"humidity"`
+	Battery     int     `json:"battery"`
 }
 
 type MeterPlusEvent struct {
@@ -406,6 +408,7 @@ type MeterPlusEventContext struct {
 	Temperature float64 `json:"temperature"`
 	Scale       string  `json:"scale"`
 	Humidity    int     `json:"humidity"`
+	Battery     int     `json:"battery"`
 }
 
 type OutdoorMeterEvent struct {
@@ -425,6 +428,7 @@ type OutdoorMeterEventContext struct {
 	Scale string `json:"scale"`
 	// the current humidity reading in percentage
 	Humidity int `json:"humidity"`
+	Battery  int `json:"battery"`
 }
 
 type MeterProEvent struct {
