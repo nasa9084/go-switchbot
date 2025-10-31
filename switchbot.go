@@ -118,11 +118,11 @@ const (
 	BlindTilt PhysicalDeviceType = "Blind Tilt"
 	// MeterPro is SwitchBot Thermometer and Hygrometer Pro Model No. W4900000
 	MeterPro PhysicalDeviceType = "MeterPro"
-	// MeterPro(CO2) is SwitchBot CO2 Sensor Model No. W4900010
+	// MeterProCO2 is SwitchBot CO2 Sensor Model No. W4900010
 	MeterProCO2 PhysicalDeviceType = "MeterPro(CO2)"
-	// Circulator Fan is SwitchBot Circulator Fan Model No. W3800511
+	// CirculatorFan is SwitchBot Circulator Fan Model No. W3800511
 	CirculatorFan PhysicalDeviceType = "Circulator Fan"
-	// Battery Circulator Fan is SwitchBot Battery Circulator Fan Model No. W3800510
+	// BatteryCirculatorFan is SwitchBot Battery Circulator Fan Model No. W3800510
 	BatteryCirculatorFan PhysicalDeviceType = "Battery Circulator Fan"
 )
 
