@@ -92,6 +92,8 @@ const (
 	MotionSensor PhysicalDeviceType = "Motion Sensor"
 	// ContactSensor is SwitchBot Contact Sensor Model No. W1201500
 	ContactSensor PhysicalDeviceType = "Contact Sensor"
+	// WaterLeakDetector is SwitchBot Water Leak Detector Model No. W4402000
+	WaterLeakDetector PhysicalDeviceType = "Water Leak Detector"
 	// ColorBulb is SwitchBot Color Bulb Model No. W1401400
 	ColorBulb PhysicalDeviceType = "Color Bulb"
 	// MeterPlus is SwitchBot Thermometer and Hygrometer Plus (JP) Model No. W2201500 / (US) Model No. W2301500

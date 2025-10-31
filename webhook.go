@@ -361,6 +361,21 @@ type ContactSensorEventContext struct {
 	Battery int `json:"battery"`
 }
 
+type WaterLeakDetectorEvent struct {
+	EventType    string                        `json:"eventType"`
+	EventVersion string                        `json:"eventVersion"`
+	Context      WaterLeakDetectorEventContext `json:"context"`
+}
+
+type WaterLeakDetectorEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	DetectionState WaterLeakStatus `json:"detectionState"`
+	Battery        int             `json:"battery"`
+}
+
 type MeterEvent struct {
 	EventType    string            `json:"eventType"`
 	EventVersion string            `json:"eventVersion"`
@@ -777,6 +792,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoPlugJP":
 		// Plug Mini (JP)
 		var event PlugMiniJPEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "Water Detector":
+		// Water Leak Detector
+		var event WaterLeakDetectorEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}

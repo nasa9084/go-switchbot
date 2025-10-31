@@ -362,6 +362,40 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoContact","deviceMac":"01:00:5e:90:10:00","detectionState":"NOT_DETECTED","doorMode":"OUT_DOOR","brightness":"dim","openState":"open","timeOfSample":123456789}}`)
 	})
 
+	t.Run("water leak detector", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.WaterLeakDetectorEvent); ok {
+					want := switchbot.WaterLeakDetectorEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.WaterLeakDetectorEventContext{
+							DeviceType:     "Water Detector",
+							DeviceMac:      "00:00:5E:00:53:00",
+							DetectionState: 0,
+							Battery:        100,
+							TimeOfSample:   123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a water leak detector event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context": {"deviceType":"Water Detector","deviceMac":"00:00:5E:00:53:00","detectionState":0,"battery":100,"timeOfSample":123456789}}`)
+	})
+
 	t.Run("meter", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

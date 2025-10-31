@@ -172,6 +172,7 @@ type DeviceStatus struct {
 	ChargingStatus         ChargingStatus       `json:"chargingStatus"`
 	FanSpeed               int                  `json:"fanSpeed"`
 	DeviceMode             BotDeviceMode        `json:"deviceMode"`
+	LeakStatus             WaterLeakStatus      `json:"status"`
 }
 
 type PowerState string
@@ -351,6 +352,13 @@ const (
 	BotDeviceModePress     BotDeviceMode = "pressMode"
 	BotDeviceModeSwitch    BotDeviceMode = "switchMode"
 	BotDeviceModeCustomize BotDeviceMode = "customizeMode"
+)
+
+type WaterLeakStatus int
+
+const (
+	WaterLeakStatusDry WaterLeakStatus = iota
+	WaterLeakStatusLeakDetected
 )
 
 // Status get the status of a physical device that has been added to the current
