@@ -427,6 +427,41 @@ type OutdoorMeterEventContext struct {
 	Humidity int `json:"humidity"`
 }
 
+type MeterProEvent struct {
+	EventType    string               `json:"eventType"`
+	EventVersion string               `json:"eventVersion"`
+	Context      MeterProEventContext `json:"context"`
+}
+
+type MeterProEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	Temperature float64 `json:"temperature"`
+	Scale       string  `json:"scale"`
+	Humidity    int     `json:"humidity"`
+	Battery     int     `json:"battery"`
+}
+
+type MeterProCO2Event struct {
+	EventType    string                  `json:"eventType"`
+	EventVersion string                  `json:"eventVersion"`
+	Context      MeterProCO2EventContext `json:"context"`
+}
+
+type MeterProCO2EventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	Temperature float64 `json:"temperature"`
+	Scale       string  `json:"scale"`
+	Humidity    int     `json:"humidity"`
+	CO2         int     `json:"CO2"`
+	Battery     int     `json:"battery"`
+}
+
 type LockEvent struct {
 	EventType    string           `json:"eventType"`
 	EventVersion string           `json:"eventVersion"`
@@ -736,6 +771,18 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoIOSensor":
 		// Indoor / Outdoor Meter
 		var event OutdoorMeterEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "MeterPro":
+		var event MeterProEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "MeterPro(CO2)":
+		var event MeterProCO2Event
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}

@@ -503,6 +503,79 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoIOSensor","deviceMac":"00:00:5E:00:53:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"timeOfSample":123456789}}`)
 	})
 
+	t.Run("meter pro", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.MeterProEvent); ok {
+					want := switchbot.MeterProEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.MeterProEventContext{
+							DeviceType:   "MeterPro",
+							DeviceMac:    "00:00:5E:00:53:00",
+							Temperature:  22.5,
+							Scale:        "CELSIUS",
+							Humidity:     31,
+							Battery:      100,
+							TimeOfSample: 123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be an meter pro event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"MeterPro","deviceMac":"00:00:5E:00:53:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"battery":100,"timeOfSample":123456789}}`)
+	})
+
+	t.Run("meter pro CO2", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.MeterProCO2Event); ok {
+					want := switchbot.MeterProCO2Event{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.MeterProCO2EventContext{
+							DeviceType:   "MeterPro(CO2)",
+							DeviceMac:    "00:00:5E:00:53:00",
+							Temperature:  22.5,
+							Scale:        "CELSIUS",
+							Humidity:     31,
+							CO2:          1203,
+							Battery:      100,
+							TimeOfSample: 123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be an outdoor meter event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"MeterPro(CO2)","deviceMac":"00:00:5E:00:53:00","temperature":22.5,"scale":"CELSIUS","humidity":31,"CO2":1203,"battery":100,"timeOfSample":123456789}}`)
+	})
+
 	t.Run("lock", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
