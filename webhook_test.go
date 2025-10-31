@@ -502,6 +502,39 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoLock","deviceMac":"01:00:5e:90:10:00","lockState":"LOCKED","timeOfSample":123456789}}`)
 	})
 
+	t.Run("lock pro", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.LockProEvent); ok {
+					want := switchbot.LockProEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.LockProEventContext{
+							DeviceType:   "WoLockPro",
+							DeviceMac:    "00:00:5E:00:53:00",
+							LockState:    "LOCKED",
+							TimeOfSample: 123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a lock event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoLockPro","deviceMac":"00:00:5E:00:53:00","lockState":"LOCKED","battery":100,"timeOfSample":123456789}}`)
+	})
+
 	t.Run("indoor cam", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

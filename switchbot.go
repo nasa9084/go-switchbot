@@ -78,6 +78,8 @@ const (
 	PlugMiniJP PhysicalDeviceType = "Plug Mini (JP)"
 	// Lock is SwitchBot Lock Model No. W1601700
 	Lock PhysicalDeviceType = "Smart Lock"
+	// LockPro is SwitchBot Lock Pro Model No. W3500000
+	LockPro PhysicalDeviceType = "Lock Pro"
 	// RobotVacuumCleanerS1 is SwitchBot Robot Vacuum Cleaner S1 Model No. W3011000; currently only available in Japan
 	RobotVacuumCleanerS1 PhysicalDeviceType = "Robot Vacuum Cleaner S1"
 	// RobotVacuumCleanerS1Plus is SwitchBot Robot Vacuum Cleaner S1 Plus Model No. W3011010; currently only available in Japan

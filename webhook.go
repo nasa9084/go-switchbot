@@ -429,6 +429,23 @@ type LockEventContext struct {
 	LockState string `json:"lockState"`
 }
 
+type LockProEvent struct {
+	EventType    string              `json:"eventType"`
+	EventVersion string              `json:"eventVersion"`
+	Context      LockProEventContext `json:"context"`
+}
+
+type LockProEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// the state of the device, "LOCKED" stands for the motor is rotated to locking position;
+	// "UNLOCKED" stands for the motor is rotated to unlocking position; "JAMMED" stands for
+	// the motor is jammed while rotating
+	LockState string `json:"lockState"`
+}
+
 type IndoorCamEvent struct {
 	EventType    string                `json:"eventType"`
 	EventVersion string                `json:"eventVersion"`
@@ -693,6 +710,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoLock":
 		// Lock
 		var event LockEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoLockPro":
+		// Lock Pro
+		var event LockProEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}
