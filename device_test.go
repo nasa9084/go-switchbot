@@ -303,6 +303,48 @@ func testDeviceCommand(t *testing.T, wantPath string, wantBody string) http.Hand
 }
 
 func TestDeviceCommand(t *testing.T) {
+	t.Run("clean with vacuum mode", func(t *testing.T) {
+		srv := httptest.NewServer(testDeviceCommand(
+			t,
+			"/v1.1/devices/F7538E1ABC23/commands",
+			`{"command":"startClean","parameter":"{\"action\":\"sweep\",\"param\":{\"fanLevel\":1,\"waterLevel\":1,\"times\":1}}","commandType":"command"}
+`,
+		))
+		defer srv.Close()
+
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
+
+		cmd, err := switchbot.StartCleanCommand(switchbot.CleanModeSweep, 1, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := c.Device().Command(context.Background(), "F7538E1ABC23", cmd); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("change the cleaning settings", func(t *testing.T) {
+		srv := httptest.NewServer(testDeviceCommand(
+			t,
+			"/v1.1/devices/F7538E1ABC23/commands",
+			`{"command":"changeParam","parameter":"{\"fanLevel\":2,\"waterLevel\":1,\"times\":1}","commandType":"command"}
+`,
+		))
+		defer srv.Close()
+
+		c := switchbot.New("", "", switchbot.WithEndpoint(srv.URL))
+
+		cmd, err := switchbot.ChangeParamCommand(2, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := c.Device().Command(context.Background(), "F7538E1ABC23", cmd); err != nil {
+			t.Fatal(err)
+		}
+	})
+
 	t.Run("create a temporary passcode", func(t *testing.T) {
 		srv := httptest.NewServer(testDeviceCommand(
 			t,

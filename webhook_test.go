@@ -808,6 +808,43 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoSweeperPlus","deviceMac":"01:00:5e:90:10:00","workingStatus":"StandBy","onlineStatus":"online","battery":100,"timeOfSample":123456789}}`)
 	})
 
+	t.Run("Robot Vacuum Cleaner S10", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.FloorCleaningRobotS10Event); ok {
+					want := switchbot.FloorCleaningRobotS10Event{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.FloorCleaningRobotS10EventContext{
+							DeviceType:       "Robot Vacuum Cleaner S10",
+							DeviceMac:        "00:00:5E:00:53:00",
+							WorkingStatus:    switchbot.CleanerStandBy,
+							OnlineStatus:     switchbot.CleanerOnline,
+							Battery:          100,
+							WaterBaseBattery: 100,
+							TaskType:         switchbot.CleanerTaskExplore,
+							TimeOfSample:     123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a sweeper plus event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"Robot Vacuum Cleaner S10","deviceMac":"00:00:5E:00:53:00","workingStatus":"StandBy","onlineStatus":"online","battery":100,"waterBaseBattery":100,"taskType":"explore","timeOfSample":123456789}}`)
+	})
+
 	t.Run("Ceiling Light", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

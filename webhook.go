@@ -567,6 +567,24 @@ type SweeperEventContext struct {
 	Battery int `json:"battery"`
 }
 
+type FloorCleaningRobotS10Event struct {
+	EventType    string                            `json:"eventType"`
+	EventVersion string                            `json:"eventVersion"`
+	Context      FloorCleaningRobotS10EventContext `json:"context"`
+}
+
+type FloorCleaningRobotS10EventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	WorkingStatus    CleanerWorkingStatus `json:"workingStatus"`
+	OnlineStatus     CleanerOnlineStatus  `json:"onlineStatus"`
+	Battery          int                  `json:"battery"`
+	WaterBaseBattery int                  `json:"waterBaseBattery"`
+	TaskType         CleanerTaskType      `json:"taskType"`
+}
+
 type CeilingEvent struct {
 	EventType    string              `json:"eventType"`
 	EventVersion string              `json:"eventVersion"`
@@ -780,6 +798,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoSweeper", "WoSweeperPlus":
 		// Cleaner
 		var event SweeperEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "Robot Vacuum Cleaner S10":
+		// Floor Cleaning Robot S10
+		var event FloorCleaningRobotS10Event
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}

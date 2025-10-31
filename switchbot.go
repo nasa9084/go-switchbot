@@ -84,6 +84,8 @@ const (
 	RobotVacuumCleanerS1 PhysicalDeviceType = "Robot Vacuum Cleaner S1"
 	// RobotVacuumCleanerS1Plus is SwitchBot Robot Vacuum Cleaner S1 Plus Model No. W3011010; currently only available in Japan
 	RobotVacuumCleanerS1Plus PhysicalDeviceType = "Robot Vacuum Cleaner S1 Plus"
+	// FloorCleaningRobotS10 is SwitchBot Floor Cleaning Robot S10 Model No. W3211800
+	FloorCleaningRobotS10 PhysicalDeviceType = "Floor Cleaning Robot S10"
 	// WoSweeperMini is SwitchBot Robot Vacuum Cleaner K10+ Model No. W3011020
 	WoSweeperMini PhysicalDeviceType = "WoSweeperMini"
 	// MotionSensor is SwitchBot Motion Sensor Model No. W1101500

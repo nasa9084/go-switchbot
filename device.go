@@ -160,6 +160,8 @@ type DeviceStatus struct {
 	WorkingStatus          CleanerWorkingStatus `json:"workingStatus"`
 	OnlineStatus           CleanerOnlineStatus  `json:"onlineStatus"`
 	Battery                int                  `json:"battery"`
+	WaterBaseBattery       int                  `json:"waterBaseBattery"`
+	TaskType               CleanerTaskType      `json:"taskType"`
 	Version                DeviceVersion        `json:"version"`
 	Direction              string               `json:"direction"`
 	CO2                    int                  `json:"CO2"`
@@ -259,6 +261,26 @@ const (
 	CleanerInTrouble        CleanerWorkingStatus = "InTrouble"
 	CleanerInRemoteControl  CleanerWorkingStatus = "InRemoteControl"
 	CleanerInDustCollecting CleanerWorkingStatus = "InDustCollecting"
+)
+
+type CleanerTaskType string
+
+const (
+	CleanerTaskStandBy          CleanerTaskType = "standBy"
+	CleanerTaskExplore          CleanerTaskType = "explore"
+	CleanerTaskCleanAll         CleanerTaskType = "cleanAll"
+	CleanerTaskCleanArea        CleanerTaskType = "cleanArea"
+	CleanerTaskCleanRoom        CleanerTaskType = "cleanRoom"
+	CleanerTaskFillWater        CleanerTaskType = "fillWater"
+	CleanerTaskDeepWashing      CleanerTaskType = "deepWashing"
+	CleanerTaskBackToCharge     CleanerTaskType = "backToCharge"
+	CleanerTaskMarkingWaterBase CleanerTaskType = "merkingWaterBase"
+	CleanerTaskDrying           CleanerTaskType = "drying"
+	CleanerTaskCollectDust      CleanerTaskType = "collectDust"
+	CleanerTaskRemoteControl    CleanerTaskType = "remoteControl"
+	CleanerTaskCleanWithExplore CleanerTaskType = "cleanWithExplore"
+	CleanerTaskFillWaterForHumi CleanerTaskType = "fillWaterForHumi"
+	CleanerTaskMarkingHumi      CleanerTaskType = "markingHumi"
 )
 
 type Mode struct {
@@ -769,6 +791,103 @@ func SetWindModeCommand(mode CirculatorMode) Command {
 		Parameter:   string(mode),
 		CommandType: "command",
 	}
+}
+
+type CleanMode string
+
+const (
+	CleanModeSweep    CleanMode = "sweep"
+	CleanModeSweepMop CleanMode = "sweep_mop"
+)
+
+// StartCleanCommand returns a new Command which starts cleaning.
+func StartCleanCommand(mode CleanMode, vacuumLevel int, waterLevel int, cleanTimes int) (Command, error) {
+	if vacuumLevel < 1 || 4 < vacuumLevel {
+		return nil, errors.New("vacuumLevel must be between 1-4")
+	}
+
+	if waterLevel != 1 && waterLevel != 2 {
+		return nil, errors.New("waterLevel must be 1 or 2")
+	}
+
+	if cleanTimes < 1 || 2639999 < cleanTimes {
+		return nil, errors.New("cleanTimes must be between 1-2639999")
+	}
+
+	return DeviceCommandRequest{
+		Command: "startClean",
+		Parameter: fmt.Sprintf(`{"action":"%s","param":{"fanLevel":%d,"waterLevel":%d,"times":%d}}`,
+			mode,
+			vacuumLevel,
+			waterLevel,
+			cleanTimes,
+		),
+		CommandType: "command",
+	}, nil
+}
+
+// AddWaterForHumiCommand returns a new Command which refills the mind blowing evaporative humidifier.
+func AddWaterForHumiCommand() Command {
+	return DeviceCommandRequest{
+		Command:     "addWaterForHumi",
+		Parameter:   "default",
+		CommandType: "command",
+	}
+}
+
+// SetVolumeCommand returns a new Command which set volume.
+func SetVolumeCommand(volume int) (Command, error) {
+	if volume < 0 || 100 < volume {
+		return nil, errors.New("volume must be between 0-100")
+	}
+
+	return DeviceCommandRequest{
+		Command:     "setVolume",
+		Parameter:   strconv.Itoa(volume),
+		CommandType: "command",
+	}, nil
+}
+
+type SelfCleanMode int
+
+const (
+	SelfCleanModeWashMop SelfCleanMode = iota + 1
+	SelfCleanModeDry
+	SelfCleanModeTerminate
+)
+
+// SelfCleanCommand returns a new Command which cleans the floor cleaning robot.
+func SelfCleanCommand(mode SelfCleanMode) Command {
+	return DeviceCommandRequest{
+		Command:     "selfClean",
+		Parameter:   strconv.Itoa(int(mode)),
+		CommandType: "command",
+	}
+}
+
+// ChangeParamCommand returns a new Command which changes the cleaning parameter.
+func ChangeParamCommand(vacuumLevel int, waterLevel int, cleanTimes int) (Command, error) {
+	if vacuumLevel < 1 || 4 < vacuumLevel {
+		return nil, errors.New("vacuumLevel must be between 1-4")
+	}
+
+	if waterLevel != 1 && waterLevel != 2 {
+		return nil, errors.New("waterLevel must be 1 or 2")
+	}
+
+	if cleanTimes < 1 || 2639999 < cleanTimes {
+		return nil, errors.New("cleanTimes must be between 1-2639999")
+	}
+
+	return DeviceCommandRequest{
+		Command: "changeParam",
+		Parameter: fmt.Sprintf(`{"fanLevel":%d,"waterLevel":%d,"times":%d}`,
+			vacuumLevel,
+			waterLevel,
+			cleanTimes,
+		),
+		CommandType: "command",
+	}, nil
 }
 
 // ACMode represents a mode for air conditioner.
