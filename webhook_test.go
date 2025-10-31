@@ -842,6 +842,76 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoSweeperPlus","deviceMac":"01:00:5e:90:10:00","workingStatus":"StandBy","onlineStatus":"online","battery":100,"timeOfSample":123456789}}`)
 	})
 
+	t.Run("Mini Robot Vacuum Cleaner K10+", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.SweeperEvent); ok {
+					want := switchbot.SweeperEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.SweeperEventContext{
+							DeviceType:    "WoSweeperMini",
+							DeviceMac:     "01:00:5e:90:10:00",
+							WorkingStatus: switchbot.CleanerStandBy,
+							OnlineStatus:  switchbot.CleanerOnline,
+							Battery:       100,
+							TimeOfSample:  123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a sweeper mini event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoSweeperMini","deviceMac":"01:00:5e:90:10:00","workingStatus":"StandBy","onlineStatus":"online","battery":100,"timeOfSample":123456789}}`)
+	})
+
+	t.Run("Mini Robot Vacuum Cleaner K10+ Pro", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.SweeperEvent); ok {
+					want := switchbot.SweeperEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.SweeperEventContext{
+							DeviceType:    "WoSweeperMiniPro",
+							DeviceMac:     "01:00:5e:90:10:00",
+							WorkingStatus: switchbot.CleanerStandBy,
+							OnlineStatus:  switchbot.CleanerOnline,
+							Battery:       100,
+							TimeOfSample:  123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a sweeper mini pro event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoSweeperMiniPro","deviceMac":"01:00:5e:90:10:00","workingStatus":"StandBy","onlineStatus":"online","battery":100,"timeOfSample":123456789}}`)
+	})
+
 	t.Run("Robot Vacuum Cleaner S10", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

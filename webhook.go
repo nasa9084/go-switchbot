@@ -817,7 +817,7 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 			return nil, err
 		}
 		return &event, nil
-	case "WoSweeper", "WoSweeperPlus":
+	case "WoSweeper", "WoSweeperPlus", "WoSweeperMini", "WoSweeperMiniPro":
 		// Cleaner
 		var event SweeperEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {

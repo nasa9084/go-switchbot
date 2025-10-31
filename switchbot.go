@@ -88,6 +88,8 @@ const (
 	FloorCleaningRobotS10 PhysicalDeviceType = "Floor Cleaning Robot S10"
 	// WoSweeperMini is SwitchBot Robot Vacuum Cleaner K10+ Model No. W3011020
 	WoSweeperMini PhysicalDeviceType = "WoSweeperMini"
+	// WoSpeeperMiniPro is SwitchBot Robot Vacuum K10+ Pro Model No. W3011026
+	WoSpeeperMiniPro PhysicalDeviceType = "WoSpeeperMiniPro"
 	// MotionSensor is SwitchBot Motion Sensor Model No. W1101500
 	MotionSensor PhysicalDeviceType = "Motion Sensor"
 	// ContactSensor is SwitchBot Contact Sensor Model No. W1201500
