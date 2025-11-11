@@ -1308,6 +1308,43 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoHub2","deviceMac":"00:00:5E:00:53:00","temperature":13,"humidity":18,"lightLevel":19,"scale":"CELSIUS","timeOfSample":123456789}}`)
 	})
 
+	t.Run("hub3", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.Hub3Event); ok {
+					want := switchbot.Hub3Event{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.Hub3EventContext{
+							DeviceType:     "Hub 3",
+							DeviceMac:      "B0E9FE582974",
+							DetectionState: "DETECTED",
+							Temperature:    30.3,
+							Humidity:       45,
+							LightLevel:     10,
+							Scale:          "CELSIUS",
+							TimeOfSample:   1742807095763,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a hub3 event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"detectionState":"DETECTED","deviceMac":"B0E9FE582974","deviceType":"Hub 3","humidity":45,"lightLevel":10,"scale":"CELSIUS","temperature":30.3,"timeOfSample":1742807095763}}`)
+	})
+
 	t.Run("battery circulator fan", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

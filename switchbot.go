@@ -49,6 +49,8 @@ const (
 	HubMini PhysicalDeviceType = "Hub Mini"
 	// Hub2 is SwitchBot Hub 2 Model No. W3202100
 	Hub2 PhysicalDeviceType = "Hub 2"
+	// Hub3 is SwitchBot Hub 3 Model No. W7202100
+	Hub3 PhysicalDeviceType = "Hub 3"
 	// Bot is SwitchBot Bot Model No. SwitchBot S1
 	Bot PhysicalDeviceType = "Bot"
 	// Curtain is SwitchBot Curtain Model No. W0701600

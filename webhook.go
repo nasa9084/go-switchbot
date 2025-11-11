@@ -715,6 +715,30 @@ type Hub2EventContext struct {
 	Scale string `json:"scale"`
 }
 
+type Hub3Event struct {
+	EventType    string           `json:"eventType"`
+	EventVersion string           `json:"eventVersion"`
+	Context      Hub3EventContext `json:"context"`
+}
+
+type Hub3EventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	// the motion state of the device, "DETECTED" stands for motion is detected;
+	// "NOT_DETECTED" stands for motion has not been detected for some time
+	DetectionState string `json:"detectionState"`
+	// the current temperature reading
+	Temperature float64 `json:"temperature"`
+	// the current humidity reading in percentage
+	Humidity int `json:"humidity"`
+	// the level of illuminance of the ambience light, 1~20
+	LightLevel int `json:"lightLevel"`
+	// the current temperature unit being used
+	Scale string `json:"scale"`
+}
+
 type BatteryCirculatorFanEvent struct {
 	EventType    string                           `json:"eventType"`
 	EventVersion string                           `json:"eventVersion"`
@@ -923,6 +947,15 @@ func ParseWebhookRequest(r *http.Request) (any, error) {
 	case "WoHub2":
 		// Hub 2
 		var event Hub2Event
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "WoHub3", "Hub 3":
+		// Hub 3
+		// Documented device type is `WoHub3` at https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/README.md#receive-events-from-webhook
+		// but `Hub 3` at https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/README.md#hub-3-1
+		var event Hub3Event
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}
