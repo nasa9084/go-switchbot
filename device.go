@@ -173,6 +173,7 @@ type DeviceStatus struct {
 	FanSpeed               int                  `json:"fanSpeed"`
 	DeviceMode             BotDeviceMode        `json:"deviceMode"`
 	LeakStatus             WaterLeakStatus      `json:"status"`
+	UsedElectricity        int                  `json:"usedElectricity"`
 }
 
 type PowerState string
@@ -252,9 +253,9 @@ const (
 type CleanerWorkingStatus string
 
 const (
-	CleanerStandBy          CleanerWorkingStatus = "StandBy"
-	CleanerClearing         CleanerWorkingStatus = "Clearing"
-	CleanerPaused           CleanerWorkingStatus = "Paused"
+	CleanerStandBy  CleanerWorkingStatus = "StandBy"
+	CleanerClearing CleanerWorkingStatus = "Clearing"
+
 	CleanerGotoChargeBase   CleanerWorkingStatus = "GotoChargeBase"
 	CleanerCharging         CleanerWorkingStatus = "Charging"
 	CleanerChargeDone       CleanerWorkingStatus = "ChargeDone"

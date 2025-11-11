@@ -848,6 +848,41 @@ func TestParseWebhook(t *testing.T) {
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoPlugJP","deviceMac":"01:00:5e:90:10:00","powerState":"ON","timeOfSample":123456789}}`)
 	})
 
+	t.Run("plug mini (EU)", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.PlugMiniEUEvent); ok {
+					want := switchbot.PlugMiniEUEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.PlugMiniEUEventContext{
+							DeviceType:      "Plug Mini (EU)",
+							DeviceMac:       "94A990502B72", // is this correct?
+							Online:          false,
+							OverTemperature: true,
+							Overload:        true,
+							SwitchStatus:    1,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a plug mini (EU) event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"Plug Mini (EU)","deviceMac":"94A990502B72","online":false,"overTemperature":true,"overload":true,"switchStatus":1}}`)
+	})
+
 	t.Run("Robot Vacuum Cleaner S1", func(t *testing.T) {
 		srv := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

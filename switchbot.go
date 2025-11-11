@@ -76,6 +76,7 @@ const (
 	PlugMiniUS PhysicalDeviceType = "Plug Mini (US)"
 	// PlugMiniJP is SwitchBot Plug Mini (JP) Model No. W2001400
 	PlugMiniJP PhysicalDeviceType = "Plug Mini (JP)"
+	// PlugMiniEU is Switchbot Plug Mini (EU) Model No. W7732300
 	// Lock is SwitchBot Lock Model No. W1601700
 	Lock PhysicalDeviceType = "Smart Lock"
 	// LockPro is SwitchBot Lock Pro Model No. W3500000

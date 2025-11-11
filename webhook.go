@@ -600,6 +600,23 @@ type PlugMiniUSEventContext struct {
 	PowerState PowerState `json:"powerState"`
 }
 
+type PlugMiniEUEvent struct {
+	EventType    string                 `json:"eventType"`
+	EventVersion string                 `json:"eventVersion"`
+	Context      PlugMiniEUEventContext `json:"context"`
+}
+
+type PlugMiniEUEventContext struct {
+	DeviceType string `json:"deviceType"`
+	DeviceMac  string `json:"deviceMac"`
+
+	Online          bool `json:"online"`
+	OverTemperature bool `json:"overTemperature"`
+	Overload        bool `json:"overload"`
+	// the switch state of the device. 1, on; 0, off
+	SwitchStatus int `json:"switchStatus"`
+}
+
 type SweeperEvent struct {
 	EventType    string              `json:"eventType"`
 	EventVersion string              `json:"eventVersion"`
@@ -843,6 +860,13 @@ func ParseWebhookRequest(r *http.Request) (interface{}, error) {
 	case "WoPlugJP":
 		// Plug Mini (JP)
 		var event PlugMiniJPEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "Plug Mini (EU)":
+		// Plug Mini (EU)
+		var event PlugMiniEUEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}
