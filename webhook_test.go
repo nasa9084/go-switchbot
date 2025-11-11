@@ -89,14 +89,14 @@ func TestWebhookQuery(t *testing.T) {
 					t.Fatalf("POST method is expected but %s", r.Method)
 				}
 
-				var got map[string]interface{}
+				var got map[string]any
 				if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
 					t.Fatal(err)
 				}
 
-				want := map[string]interface{}{
+				want := map[string]any{
 					"action": "queryDetails",
-					"urls":   []interface{}{"url1"},
+					"urls":   []any{"url1"},
 				}
 
 				if diff := cmp.Diff(want, got); diff != "" {
@@ -123,14 +123,14 @@ func TestWebhookUpdate(t *testing.T) {
 				t.Fatalf("POST method is expected but %s", r.Method)
 			}
 
-			var got map[string]interface{}
+			var got map[string]any
 			if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
 				t.Fatal(err)
 			}
 
-			want := map[string]interface{}{
+			want := map[string]any{
 				"action": "updateWebhook",
-				"config": map[string]interface{}{
+				"config": map[string]any{
 					"url":    "url1",
 					"enable": true,
 				},

@@ -195,7 +195,7 @@ type httpResponse struct {
 	*http.Response
 }
 
-func (resp *httpResponse) DecodeJSON(data interface{}) error {
+func (resp *httpResponse) DecodeJSON(data any) error {
 	if err := json.NewDecoder(resp.Response.Body).Decode(data); err != nil {
 		return fmt.Errorf("decoding JSON data: %w", err)
 	}
@@ -273,7 +273,7 @@ func (c *Client) get(ctx context.Context, path string) (*httpResponse, error) {
 	return c.do(ctx, http.MethodGet, path, nil)
 }
 
-func (c *Client) post(ctx context.Context, path string, body interface{}) (*httpResponse, error) {
+func (c *Client) post(ctx context.Context, path string, body any) (*httpResponse, error) {
 	var buf bytes.Buffer
 
 	if err := json.NewEncoder(&buf).Encode(body); err != nil {
@@ -283,7 +283,7 @@ func (c *Client) post(ctx context.Context, path string, body interface{}) (*http
 	return c.do(ctx, http.MethodPost, path, &buf)
 }
 
-func (c *Client) del(ctx context.Context, path string, body interface{}) (*httpResponse, error) {
+func (c *Client) del(ctx context.Context, path string, body any) (*httpResponse, error) {
 	var buf bytes.Buffer
 
 	if err := json.NewEncoder(&buf).Encode(body); err != nil {

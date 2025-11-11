@@ -57,9 +57,9 @@ func (svc *SceneService) List(ctx context.Context) ([]Scene, error) {
 }
 
 type sceneExecuteResponse struct {
-	StatusCode int         `json:"statusCode"`
-	Message    string      `json:"message"`
-	Body       interface{} `json:"body"`
+	StatusCode int    `json:"statusCode"`
+	Message    string `json:"message"`
+	Body       any    `json:"body"`
 }
 
 // Execute sends a request to execute a manual scene.

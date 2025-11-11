@@ -29,9 +29,9 @@ type webhookSetupRequest struct {
 }
 
 type webhookSetupResponse struct {
-	StatusCode int         `json:"statusCode"`
-	Body       interface{} `json:"body"`
-	Message    string      `json:"message"`
+	StatusCode int    `json:"statusCode"`
+	Body       any    `json:"body"`
+	Message    string `json:"message"`
 }
 
 // Setup configures the url that all the webhook events will be sent to.
@@ -747,7 +747,7 @@ type BatteryCirculatorFanEventContext struct {
 	FanSpeed int `json:"fanSpeed"`
 }
 
-func ParseWebhookRequest(r *http.Request) (interface{}, error) {
+func ParseWebhookRequest(r *http.Request) (any, error) {
 	deviceType, err := deviceTypeFromWebhookRequest(r)
 	if err != nil {
 		return nil, err
