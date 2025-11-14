@@ -127,6 +127,8 @@ const (
 	CirculatorFan PhysicalDeviceType = "Circulator Fan"
 	// BatteryCirculatorFan is SwitchBot Battery Circulator Fan Model No. W3800510
 	BatteryCirculatorFan PhysicalDeviceType = "Battery Circulator Fan"
+	// ClimatePanel is Switchbot Climate Panel Model No. undefined
+	ClimatePanel PhysicalDeviceType = "Climate Panel"
 )
 
 type VirtualDeviceType string
