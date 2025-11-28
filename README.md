@@ -29,5 +29,6 @@ To use [SwitchBot API](https://github.com/OpenWonderLabs/SwitchBotAPI/blob/main/
 
 > 1. Download the SwitchBot app on App Store or Google Play Store
 > 2. Register a SwitchBot account and log in into your account
-> 3. Generate an Open Token within the app a) Go to Profile > Preference b) Tap App Version 10 times. Developer Options will show up c) Tap Developer Options d) Tap Get Token
+> 3. Generate an Open Token within the app For app version ≥ V9.0, a) Go to Profile > Preferences > About b) Tap App Version 10 times. Developer Options will show up c) Tap Developer Options d) Tap Get Token
+> For app version < V9.0, a) Go to Profile > Preferences b) Tap App Version 10 times. Developer Options will show up c) Tap Developer Options d) Tap Get Token
 > 4. Roll up your sleeves and get your hands dirty with SwitchBot OpenAPI!
