@@ -174,6 +174,9 @@ type DeviceStatus struct {
 	DeviceMode             BotDeviceMode        `json:"deviceMode"`
 	LeakStatus             WaterLeakStatus      `json:"status"`
 	UsedElectricity        int                  `json:"usedElectricity"`
+	IsDetected             bool                 `json:"detected"`
+	IsDrying               bool                 `json:"drying"`
+	FilterElement          FilterElement        `json:"filterElement"`
 }
 
 type PowerState string
@@ -361,6 +364,13 @@ const (
 	WaterLeakStatusDry WaterLeakStatus = iota
 	WaterLeakStatusLeakDetected
 )
+
+type FilterElement struct {
+	// EffectiveUsageHours shows the effective duration of the humidifier filter in hours.
+	EffectiveUsageHours int `json:"effectiveUsageHours"`
+	// UsedHours shows the number of hours the humidifier filter has been used.
+	UsedHours int `json:"usedHours"`
+}
 
 // Status get the status of a physical device that has been added to the current
 // user's account. Physical devices refer to the SwitchBot products.
@@ -570,6 +580,44 @@ func SetModeCommand(mode HumidifierMode) Command {
 	return DeviceCommandRequest{
 		Command:     "setMode",
 		Parameter:   parameter,
+		CommandType: "command",
+	}
+}
+
+type EvaporativeHumidifierMode int
+
+const (
+	EvaporativeHumidifierLevel4 EvaporativeHumidifierMode = iota + 1
+	EvaporativeHumidifierLevel3
+	EvaporativeHumidifierLevel2
+	EvaporativeHumidifierLevel1
+	EvaporativeHumidifierHumidityMode
+	EvaporativeHumidifierSleepMode
+	EvaporativeHumidifierAutoMode
+	EvaporativeHumidifierDryingMode
+)
+
+// SetEvaporativeHumidifierModeCommand returns a new Command which sets the mode for EvaporativeHumidifier or
+// EvaporativeHumidifier (Auto-refill).
+// targetHumidity, the target humidity level is in percentage 0-100.
+func SetEvaporativeHumidifierModeCommand(mode EvaporativeHumidifierMode, targetHumidity int) (Command, error) {
+	if targetHumidity < 0 || 100 < targetHumidity {
+		return nil, errors.New("targetHumidity must be between 0 and 100")
+	}
+
+	return DeviceCommandRequest{
+		Command:     "setMode",
+		Parameter:   fmt.Sprintf(`{"mode":%d,"targetHumidity":%d}`, mode, targetHumidity),
+		CommandType: "command",
+	}, nil
+}
+
+// SetChildLock returns a new Command which sets the childLock mode for EvaporativeHumidifier or
+// EvaporativeHumidifier (Auto-refill).
+func SetChildLock(isEnabled bool) Command {
+	return DeviceCommandRequest{
+		Command:     "setChildLock",
+		Parameter:   strconv.FormatBool(isEnabled),
 		CommandType: "command",
 	}
 }

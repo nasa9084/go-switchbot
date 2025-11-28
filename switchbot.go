@@ -128,6 +128,10 @@ const (
 	CirculatorFan PhysicalDeviceType = "Circulator Fan"
 	// BatteryCirculatorFan is SwitchBot Battery Circulator Fan Model No. W3800510
 	BatteryCirculatorFan PhysicalDeviceType = "Battery Circulator Fan"
+	// EvaporativeHumidifier is SwitchBot Evaporative Humidifier Model No. W3902300
+	EvaporativeHumidifier PhysicalDeviceType = "Humidifier2"
+	// EvaporativeHumidifierAutoRefill is SwitchBot Evaporative Humidifier (Auto-refill) Model No. W3902310
+	EvaporativeHumidifierAutoRefill PhysicalDeviceType = "Humidifier2"
 )
 
 type VirtualDeviceType string

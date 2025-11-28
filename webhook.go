@@ -771,6 +771,22 @@ type BatteryCirculatorFanEventContext struct {
 	FanSpeed int `json:"fanSpeed"`
 }
 
+type EvaporativeHumidifierEvent struct {
+	EventType    string                            `json:"eventType"`
+	EventVersion string                            `json:"eventVersion"`
+	Context      EvaporativeHumidifierEventContext `json:"context"`
+}
+
+type EvaporativeHumidifierEventContext struct {
+	DeviceType   string `json:"deviceType"`
+	DeviceMac    string `json:"deviceMac"`
+	TimeOfSample int64  `json:"timeOfSample"`
+
+	Power    string                    `json:"power"`
+	Mode     EvaporativeHumidifierMode `json:"mode"`
+	IsDrying bool                      `json:"drying"`
+}
+
 func ParseWebhookRequest(r *http.Request) (any, error) {
 	deviceType, err := deviceTypeFromWebhookRequest(r)
 	if err != nil {
@@ -963,6 +979,13 @@ func ParseWebhookRequest(r *http.Request) (any, error) {
 	case "WoFan2":
 		// Battery Circulator Fan
 		var event BatteryCirculatorFanEvent
+		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+			return nil, err
+		}
+		return &event, nil
+	case "Humidifier2":
+		// EvaporativeHumidifier
+		var event EvaporativeHumidifierEvent
 		if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 			return nil, err
 		}

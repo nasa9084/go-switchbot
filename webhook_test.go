@@ -1385,4 +1385,74 @@ func TestParseWebhook(t *testing.T) {
 
 		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"WoFan2","deviceMac":"00:00:5E:00:53:00","mode":"direct","version":"V3.1","battery":22,"powerState":"ON","nightStatus":"off","oscillation":"on","verticalOscillation":"on","chargingStatus":"charging","fanSpeed":3,"timeOfSample":123456789}}`)
 	})
+
+	t.Run("evaporative humidifier", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.EvaporativeHumidifierEvent); ok {
+					want := switchbot.EvaporativeHumidifierEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.EvaporativeHumidifierEventContext{
+							DeviceType:   "Humidifier2",
+							DeviceMac:    "00:00:5E:00:53:00",
+							Power:        "on",
+							Mode:         1,
+							IsDrying:     false,
+							TimeOfSample: 123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a battery circulator fan event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"Humidifier2","deviceMac":"00:00:5E:00:53:00","power":"on","mode":1,"drying":false,"timeOfSample":123456789}}`)
+	})
+
+	t.Run("evaporative humidifier (auto-refill)", func(t *testing.T) {
+		srv := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				event, err := switchbot.ParseWebhookRequest(r)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if got, ok := event.(*switchbot.EvaporativeHumidifierEvent); ok {
+					want := switchbot.EvaporativeHumidifierEvent{
+						EventType:    "changeReport",
+						EventVersion: "1",
+						Context: switchbot.EvaporativeHumidifierEventContext{
+							DeviceType:   "Humidifier2",
+							DeviceMac:    "00:00:5E:00:53:00",
+							Power:        "on",
+							Mode:         1,
+							IsDrying:     false,
+							TimeOfSample: 123456789,
+						},
+					}
+
+					if diff := cmp.Diff(want, *got); diff != "" {
+						t.Fatalf("event mismatch (-want +got):\n%s", diff)
+					}
+				} else {
+					t.Fatalf("given webhook event must be a battery circulator fan event but %T", event)
+				}
+			}),
+		)
+		defer srv.Close()
+
+		sendWebhook(srv.URL, `{"eventType":"changeReport","eventVersion":"1","context":{"deviceType":"Humidifier2","deviceMac":"00:00:5E:00:53:00","power":"on","mode":1,"drying":false,"timeOfSample":123456789}}`)
+	})
 }
