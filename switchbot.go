@@ -83,31 +83,36 @@ const (
 	// Lock is SwitchBot Lock Model No. W1601700
 	Lock PhysicalDeviceType = "Smart Lock"
 	// LockPro is SwitchBot Lock Pro Model No. W3500000
-	LockPro PhysicalDeviceType = "Lock Pro"
+	LockPro PhysicalDeviceType = "Smart Lock Pro"
 	// RobotVacuumCleanerS1 is SwitchBot Robot Vacuum Cleaner S1 Model No. W3011000; currently only available in Japan
 	RobotVacuumCleanerS1 PhysicalDeviceType = "Robot Vacuum Cleaner S1"
 	// RobotVacuumCleanerS1Plus is SwitchBot Robot Vacuum Cleaner S1 Plus Model No. W3011010; currently only available in Japan
 	RobotVacuumCleanerS1Plus PhysicalDeviceType = "Robot Vacuum Cleaner S1 Plus"
 	// FloorCleaningRobotS10 is SwitchBot Floor Cleaning Robot S10 Model No. W3211800
-	FloorCleaningRobotS10 PhysicalDeviceType = "Floor Cleaning Robot S10"
+	FloorCleaningRobotS10 PhysicalDeviceType = "Robot Vacuum Cleaner S10"
+	// FloorCleaningRobotS20 is SwitchBot Floor Cleaning Robot S20 Model No. W6602310
+	S20 PhysicalDeviceType = "Floor Cleaning Robot S20"
 	// WoSweeperMini is SwitchBot Robot Vacuum Cleaner K10+ Model No. W3011020
 	WoSweeperMini PhysicalDeviceType = "WoSweeperMini"
 	// WoSpeeperMiniPro is SwitchBot Robot Vacuum K10+ Pro Model No. W3011026
 	WoSpeeperMiniPro PhysicalDeviceType = "WoSpeeperMiniPro"
+	// K20PlusPro is SwitchBot Multitasking Household Robot K20+ Pro Model No. W3002520
+	K20PlusPro PhysicalDeviceType = "K20+ Pro"
+	// K11Plus is Robot Vacuum K11+ Model No. W3003100
 	// MotionSensor is SwitchBot Motion Sensor Model No. W1101500
 	MotionSensor PhysicalDeviceType = "Motion Sensor"
 	// ContactSensor is SwitchBot Contact Sensor Model No. W1201500
 	ContactSensor PhysicalDeviceType = "Contact Sensor"
 	// WaterLeakDetector is SwitchBot Water Leak Detector Model No. W4402000
-	WaterLeakDetector PhysicalDeviceType = "Water Leak Detector"
+	WaterLeakDetector PhysicalDeviceType = "Water Detector"
 	// ColorBulb is SwitchBot Color Bulb Model No. W1401400
 	ColorBulb PhysicalDeviceType = "Color Bulb"
 	// MeterPlus is SwitchBot Thermometer and Hygrometer Plus (JP) Model No. W2201500 / (US) Model No. W2301500
 	MeterPlus PhysicalDeviceType = "MeterPlus"
 	// KeyPad is SwitchBot Lock Model No. W2500010
-	KeyPad PhysicalDeviceType = "KeyPad"
+	KeyPad PhysicalDeviceType = "Keypad"
 	// KeyPadTouch is SwitchBot Lock Model No. W2500020
-	KeyPadTouch PhysicalDeviceType = "KeyPad Touch"
+	KeyPadTouch PhysicalDeviceType = "Keypad Touch"
 	// CeilingLight is SwitchBot Ceiling Light Model No. W2612230 and W2612240.
 	CeilingLight PhysicalDeviceType = "Ceiling Light"
 	// CeilingLightPro is SwitchBot Ceiling Light Pro Model No. W2612210 and W2612220.
